@@ -24,7 +24,7 @@ const schema = defineSchema({
         isPublic : v.optional(v.boolean()),
         tags : v.optional(v.array(v.string())),
         projectNumber : v.number(),
-    }).index("by_userId" , ["userId"]),
+    }).index("by_userId" , ["userId"]).index("by_userId_lastModified" , ["userId" , "lastModified"]),
     credits_ledger : defineTable({
         userId : v.id("users"),
         subscriptionId : v.id("subscriptions"),
