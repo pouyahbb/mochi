@@ -50,8 +50,8 @@ const Navbar = () => {
                     <div className='w-4 h-4 rounded-full bg-white'></div>
                 </Link>
                 {!hasCanvas || (!hasStyleGuide && (
-                    <div className='lg:inline-block hidden rounded-full text-primary/60 border border-white/12 backdrop-blur-xl bg-white/80 px-4 py-2 text-sm saturate-150 '>
-                        Project / ${project?.name}
+                    <div className='lg:inline-block hidden rounded-full text-primary/60 border border-white/12 backdrop-blur-xl bg-white/8 px-4 py-2 text-sm saturate-150 '>
+                        Project / {project?.name}
                     </div>
                 ))}
             </div>
