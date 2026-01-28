@@ -90,7 +90,7 @@ const viewportSlice = createSlice({
             state.translate.y = t.y
             state.scale = next
         },
-        whileZoom(state , action : PayloadAction<{deltaY : number ; originScreen : Point}>){
+        wheelZoom(state , action : PayloadAction<{deltaY : number ; originScreen : Point}>){
             const {deltaY , originScreen} = action.payload
             const factor = Math.pow(state.zoomStep , -deltaY / 53)
             const next = clamp(state.scale * factor , state.minScale , state.maxScale)
@@ -182,7 +182,7 @@ export const {
     setScale ,
     setTranslate ,
     wheelPan ,
-    whileZoom ,
+    wheelZoom ,
     zoomBy , 
     zoomToFit
 } = viewportSlice.actions

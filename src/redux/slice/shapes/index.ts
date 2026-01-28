@@ -226,16 +226,16 @@ const makeLine = (p:{
 const makeText = (p : {
     x : number 
     y : number 
-    text : string
-    fontSize : number
-    fontFamily : string
-    fontWeight : number
-    fontStyle : "normal" | "italic"
-    textAlign : "right" | "left" | "center"
-    textDecoration : "none" | "underline" | "line-through"
-    lineHeight : number
-    letterSpacing : number
-    textTransform : "none" | "uppercase" | "lowercase" | "capitalize"
+    text?: string
+    fontSize?: number
+    fontFamily?: string
+    fontWeight?: number
+    fontStyle?: "normal" | "italic"
+    textAlign?: "right" | "left" | "center"
+    textDecoration?: "none" | "underline" | "line-through"
+    lineHeight?: number
+    letterSpacing?: number
+    textTransform?: "none" | "uppercase" | "lowercase" | "capitalize"
     stroke?: string
     strokeWidth?: number 
     fill?: string

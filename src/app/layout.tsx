@@ -34,7 +34,7 @@ export default async function RootLayout({
   
   return (
     <ConvexAuthNextjsServerProvider>
-    <html lang="en">
+    <html className="bg-background" lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
