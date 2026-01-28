@@ -150,7 +150,7 @@ export const useMoodBoard= (guideImages : MoodBoardImage[]) => {
     }
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault()
-        e.stopPropagation()
+        e.stopPropagation() 
         setDragActive(false)
 
         const files = Array.from(e.dataTransfer.files)
@@ -159,11 +159,17 @@ export const useMoodBoard= (guideImages : MoodBoardImage[]) => {
             toast.error("Please drop image files only")
             return 
         }
-        imageFiles.forEach(file => {
-            if(images.length < 5){
-                addImage(file)
-            }
-        })
+        const remainingSlots = 5 - images.length
+        if(remainingSlots <= 0){
+            toast.error("Maximum 5 images allowed")
+            return
+        }
+        const toAdd = imageFiles.slice(0, remainingSlots)
+        const skipped = imageFiles.length - toAdd.length
+        toAdd.forEach(file => addImage(file))
+        if(skipped > 0){
+            toast.error("Maximum 5 images allowed")
+        }
     }
     const handleFileInput = (e : React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || [])
