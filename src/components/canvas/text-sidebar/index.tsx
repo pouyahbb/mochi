@@ -2,9 +2,11 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
+import { Toggle } from '@/components/ui/toggle'
 import { cn } from '@/lib/utils'
 import { TextShape, updateShape } from '@/redux/slice/shapes'
 import { useAppDispatch, useAppSelector } from '@/redux/store'
+import { Bold, Italic, Strikethrough, Underline } from 'lucide-react'
 import React from 'react'
 import { Label } from 'recharts'
 
@@ -67,8 +69,33 @@ const TextSidebar = ({isOpen} : Props) => {
                     <Slider value={[selectedTextShape?.fontWeight]} onValueChange={([value]) => updateTextProperty("fontWeight" , value)} min={100} max={900} step={100} className="w-full" />
                 </div>
             </div>
+            <div className='space-y-3'>
+                <Label className='text-white/80'> Style </Label>
+                <div className='flex gap-2'>
+                    <Toggle pressed={selectedTextShape?.fontWeight >= 600} onPressedChange={(pressed) => {
+                        updateTextProperty("fontWeight" , pressed ? 700 : 400)
+                    }} className='data-[state=on]:bg-blue-500 data-[state=on]:text-white'>
+                        <Bold className='w-4 h-4' />
+                    </Toggle>
+                    <Toggle pressed={selectedTextShape?.fontStyle === "italic"} onPressedChange={(pressed) => {
+                        updateTextProperty("fontStyle" , pressed ? "italic" : "normal")
+                    }} className='data-[state=on]:bg-blue-500 data-[state=on]:text-white'>
+                        <Italic className='w-4 h-4' />
+                    </Toggle>
+                    <Toggle pressed={selectedTextShape?.textDecoration === "underline"} onPressedChange={(pressed) => {
+                        updateTextProperty("textDecoration" , pressed ? "underline" : "none")
+                    }} className='data-[state=on]:bg-blue-500 data-[state=on]:text-white'>
+                        <Underline className='w-4 h-4' />
+                    </Toggle>
+                    <Toggle pressed={selectedTextShape?.textDecoration === "line-through"} onPressedChange={(pressed) => {
+                        updateTextProperty("textDecoration" , pressed ? "line-through" : "none")
+                    }} className='data-[state=on]:bg-blue-500 data-[state=on]:text-white'>
+                        <Strikethrough className='w-4 h-4' />
+                    </Toggle>
+                </div>
+            </div>
         </div>
-        // shhould look 6:37:52
+        // should look 6:39
     )
 }
 
