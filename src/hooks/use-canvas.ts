@@ -1,11 +1,12 @@
 "use client"
-import { addArrow, addEllipse, addFrame, addFreeDrawShape, addLine, addRect, addText, clearSelection, removeShape, selectShape, setTool, Shape, Tool, updateShape } from "@/redux/slice/shapes"
+import { addArrow, addEllipse, addFrame, addFreeDrawShape, addLine, addRect, addText, clearSelection, FrameShape, removeShape, selectShape, setTool, Shape, Tool, updateShape } from "@/redux/slice/shapes"
 import { handToolDisable, handToolEnable, panEnd, panMove, panStart, Point, screenToWorld, wheelPan, wheelZoom } from "@/redux/slice/viewport"
-import { AppDispatch, useAppSelector } from "@/redux/store"
+import { AppDispatch, useAppDispatch, useAppSelector } from "@/redux/store"
 import { useDispatch } from "react-redux"
 import { useProjectCreation } from "./use-project"
 import React, { useEffect, useRef, useState } from "react"
 import { de } from "date-fns/locale"
+import { downloadBlob, generateFrameSnapshot } from "@/lib/frame-snapshot"
 
 interface TouchPointer  {
     id : number
@@ -685,3 +686,33 @@ export const useInfiniteCanvas = () => {
         setIsSidebarOpen
     }
 } 
+
+
+export const useFrame = (shape : FrameShape) => {
+    const dispatch = useAppDispatch() 
+    const [isGenerating , setIsGenerating] = useState(false)
+
+    const allShapes = useAppSelector(state => Object.values(state.shapes.shapes?.entities || {}).filter((shape): shape is Shape => shape !== undefined))
+
+     const handleGenerateDesign = async () => {
+        try{
+            setIsGenerating(true)
+            const snapshot = await generateFrameSnapshot(shape , allShapes)
+            downloadBlob(snapshot , `frame-${shape.frameNumber}-snapshot.png`)
+            const formData = new FormData()
+            formData.append("image" , snapshot , `frame-${shape.frameNumber}-snapshot.png`)
+            formData.append("frameNumber" , shape.frameNumber.toString())
+
+            const urlParams = new URLSearchParams(window.location.search)
+            const projectId = urlParams.get("project")
+            if(projectId){
+                formData.append("projectId" , projectId)
+                     
+            }
+        }catch(err){
+
+        }
+     }
+
+     return {isGenerating , handleGenerateDesign}
+}

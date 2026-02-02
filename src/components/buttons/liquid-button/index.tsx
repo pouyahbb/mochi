@@ -12,7 +12,7 @@ interface LiquidButtonProps {
 }
 
 
-const LiquidButton:React.FC<LiquidButtonProps> = ({
+export const LiquidButton:React.FC<LiquidButtonProps> = ({
     children , 
     className ,
     onClick,
