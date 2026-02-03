@@ -1,10 +1,8 @@
 import { inngest } from '@/app/inngest/client'
-import { autosaveProjectWorkflow } from '@/app/inngest/functions'
+import { autosaveProjectWorkflow, handlePolarEvent } from '@/app/inngest/functions'
 import {serve} from 'inngest/next'
 
 export const {GET , POST , PUT} = serve({
     client : inngest,
-    functions : [autosaveProjectWorkflow]
+    functions : [handlePolarEvent , autosaveProjectWorkflow]
 })
-
-// should look 7:56

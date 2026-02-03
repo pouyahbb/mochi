@@ -10,10 +10,10 @@ import { Text } from './text'
 
 type Props = {
     shape: Shape
-    toggleInspiration?: () => void
-    toggleChat?: (generatedUIId: string) => void
-    generateWorkflow?: (generateUIId: string) => void
-    exportDesign?: (generatedUIId: string, element: HTMLElement | null) => void
+    toggleInspiration: () => void
+    toggleChat: (generatedUIId: string) => void
+    generateWorkflow: (generateUIId: string) => void
+    exportDesign: (generatedUIId: string, element: HTMLElement | null) => void
 }
 
 const ShapeRenderer = ({
@@ -25,7 +25,7 @@ const ShapeRenderer = ({
 }: Props) => {
     switch (shape.type) {
         case 'frame':
-            return <Frame shape={shape} toggleInspiration={toggleInspiration ?? (() => {})} />
+            return <Frame shape={shape} toggleInspiration={toggleInspiration} />
         case 'rect':
             return <Rectangle shape={shape} />
         case 'ellipse':
