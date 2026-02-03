@@ -30,7 +30,7 @@ const grantKey = (subId : string  , periodEndMs?:number,eventId?:string | number
 
 export const handlePolarEvent = inngest.createFunction(
     {id : "polar-webhook-handler"} , 
-    {event : "polar/webhook.recived"},
+    {event : "polar/webhook.recieved"},
     async({event , step}) => {
         console.log("Inngest starting polar webhook handler" , JSON.stringify(event.data , null , 2))
         if(!isPolarWebhookEvent(event.data)){
