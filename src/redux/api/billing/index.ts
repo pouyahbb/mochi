@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const BillingApi = createApi({
-    reducerPath : "billing",
+    reducerPath : "billingApi",
     baseQuery : fetchBaseQuery({baseUrl : "/api/billing"}),
     endpoints: (builder) => ({
         getCheckout : builder.query({

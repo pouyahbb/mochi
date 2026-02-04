@@ -2,8 +2,9 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 const DEFAULT_GRANT = 10
-const DEFAULT_RESOLLVER_LIMIT = 100
-const ENTITLED = new Set(["active" , "trialing"])
+const DEFAULT_ROLLOVER_LIMIT = 100
+// Include 'paid' for one-time purchases
+const ENTITLED = new Set(["active" , "trialing" , "paid"])
 
 export const  hasEntitlement = query({
     args : {
@@ -14,7 +15,8 @@ export const  hasEntitlement = query({
         for await (const sub of ctx.db.query("subscriptions").withIndex("by_userId" , (q) => q.eq("userId" , userId))){
             const status = String(sub.status || "").toLowerCase()
             const periodOk = sub.currentPeriodEnd == null || sub.currentPeriodEnd > now
-            if(status === "active" && periodOk) return true
+            // Check for active, trialing, or paid (one-time purchases)
+            if(ENTITLED.has(status) && periodOk) return true
         }
         return false
     }
@@ -78,7 +80,7 @@ export const upsertFromPolar = mutation({
                 args.creditsRolloverLimit
                 ?? existingByPolar?.creditsRolloverLimit
                 ?? existingByUser?.creditsRolloverLimit
-                ?? DEFAULT_RESOLLVER_LIMIT
+                ?? DEFAULT_ROLLOVER_LIMIT
         }
         if(existingByPolar){
             if(existingByPolar.userId === args.userId){
@@ -143,14 +145,15 @@ export const grantCreditsIfNeeded = mutation({
         if(sub.lastGrantCursor === idempotencyKey){
             return { ok : true , skipped : true,reason : "cursor-match"}
         }
-        if(!ENTITLED.has(sub.status)){
+        const status = String(sub.status || "").toLowerCase()
+        if(!ENTITLED.has(status)){
             return {ok : true , skipped : true , reason : "not-entitled"}
         }
 
         const grant = amount ?? sub.creditsGrantPerPeriod ?? DEFAULT_GRANT
         if(grant <= 0 ) return {ok : true , skipped : true , reason : "zero-grant"}
         
-        const next = Math.min(sub.creditsBalance + grant , sub.creditsRolloverLimit ?? DEFAULT_RESOLLVER_LIMIT)
+        const next = Math.min(sub.creditsBalance + grant , sub.creditsRolloverLimit ?? DEFAULT_ROLLOVER_LIMIT)
 
         await ctx.db.patch(subscriptionId, {
             creditsBalance : next,
@@ -167,5 +170,51 @@ export const grantCreditsIfNeeded = mutation({
             meta : {prev : sub.creditsBalance , next}
         })
         return {ok : true , granted : grant , balance : next }
+    }
+})
+
+
+export const getCreditBalance = query({
+    args : {userId : v.id("users")},
+    handler : async(ctx , {userId}) => {
+        const sub = await ctx.db.query("subscriptions").withIndex("by_userId" , q => q.eq("userId" , userId)).first()
+
+        return sub?.creditsBalance ?? 0
+    }
+})
+
+export const consumeCredits = mutation({
+    args : {
+        userId : v.id("users"),
+        amount : v.number(),
+        reason : v.optional(v.string()),
+        idempotencyKey : v.optional(v.string())
+    },
+    handler : async(ctx , {userId , amount , reason, idempotencyKey}) => {
+        if(amount <= 0) return {ok : false , error : "invalid-amount"}
+        if(idempotencyKey){
+            const dupe = await ctx.db.query("credits_ledger").withIndex("by_idempotencyKey" , q => q.eq("idempotencyKey" , idempotencyKey)).first()
+            if(dupe) return {ok : true , idempotent : true}
+        }
+        const sub = await ctx.db.query("subscriptions").withIndex("by_userId", q => q.eq("userId" , userId)).first()
+        if(!sub) return {ok : false , error : "no-subscription"}
+        if(!ENTITLED.has(sub.status)) return {ok : false , error : "not-entitled"}
+        if(sub.creditsBalance < amount) return {ok : false , error : "insufficient-balance" , balance : sub.creditsBalance}
+        const next = sub.creditsBalance - amount
+        
+        await ctx.db.patch(sub._id , {
+            creditsBalance : next
+        })
+
+        await ctx.db.insert("credits_ledger" , {
+            userId ,
+            subscriptionId : sub._id,
+            amount : -amount ,
+            type : "consume",
+            reason : reason ?? "usage",
+            idempotencyKey,
+            meta : {prev : sub.creditsBalance , next}
+        })
+        return {ok : true , balance : next}
     }
 })

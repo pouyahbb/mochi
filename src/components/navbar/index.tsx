@@ -26,10 +26,15 @@ const Navbar = () => {
     const projectId = params.get("project")
     const hasCanvas = pathname.includes("canvas")
     const hasStyleGuide = pathname.includes("style-guide")
-    
-    const project = useQuery(api.projects.getProject , projectId ? {projectId : projectId as Id<"projects">} : "skip")
 
     const me = useAppSelector(state => state.profile)
+
+    const creditBalance = useQuery(api.subscription.getCreditBalance , {
+        userId : me.id as Id<"users">
+    })
+
+    const project = useQuery(api.projects.getProject , projectId ? {projectId : projectId as Id<"projects">} : "skip")
+
 
     const tabs:TabsProps[] = [
         {
@@ -75,7 +80,7 @@ const Navbar = () => {
                 </div>
             </div>
             <div className='flex items-center gap-4 justify-end'>
-                    <span className='text-sm text-white/50'> TODO : credits </span>
+                    <span className='text-sm text-white/50'> {creditBalance} credits </span>
                     <Button className='rounded-full h-12 w-12 flex items-center justify-center backdrop-blur-xl bg-white/8 border border-white/12 saturate-150 hover:bg-white/12' variant="secondary">
                         <CircleQuestionMark className='size-5 text-white' />
                     </Button>

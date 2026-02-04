@@ -21,6 +21,8 @@ const Page = () => {
             router.replace("/auth/sign-in")
             return 
         }
+        if(entitled === undefined) return
+
         if(entitled){
             redirected.current = true
             router.replace("/dashboard")
@@ -36,11 +38,11 @@ const Page = () => {
             setTimedOut(true)
             redirected.current = true
             router.replace(`/billing/${me.name}`)
-            return () => clearTimeout(t)
         } , 45_000)
+        return () => clearTimeout(t)
     } , [me , entitled , router])
 
-// should look 9:24:49
+
   return (
     <div className='mx-auto max-w-md p-8 text-center'>
         <div className='mb-3'>

@@ -7,6 +7,8 @@ import React, { useRef } from 'react'
 import { ImagesBoard } from './images.board'
 import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useSearchParams } from 'next/navigation'
+import GenerateStyleGuideButton from '@/components/buttons/style-guide'
 
 type Props = {
     guideImages : MoodBoardImage[]
@@ -15,6 +17,8 @@ type Props = {
 const MoodBoard = ({guideImages} : Props) => {
     const {images , dragActive , removeImage , handleDrag , handleDrop , handleFileInput , canAddMore} = useMoodBoard(guideImages)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const searchParams = useSearchParams()
+    const projectId = searchParams.get("project")
 
     const handleUploadClick = () => {
         fileInputRef.current?.click()
@@ -120,9 +124,7 @@ const MoodBoard = ({guideImages} : Props) => {
                 )}
                 <input ref={fileInputRef} type="file" multiple accept='image/*' onChange={handleFileInput} className='hidden' />
             </div>
-            <Button className='w-fit'>
-                Generate With AI
-            </Button>
+            <GenerateStyleGuideButton images={images} fileInputRef={fileInputRef}  projectId={projectId ?? ""}/>
             {images.length >= 5 && (
                 <div className='text-center p-4 bg-muted/50 rounded-2xl'>
                     <p className='text-sm text-muted-foreground'>

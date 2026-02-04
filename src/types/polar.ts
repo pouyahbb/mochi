@@ -16,7 +16,7 @@ export const isPolarWebhookEvent=  (
 }
 
 
-export type RecievedEvent = PolarWebhookEvent<unknown>
+export type ReceivedEvent = PolarWebhookEvent<unknown>
 
 export interface PolarCustomer {
     id : string
@@ -112,5 +112,119 @@ export const toMs = (x : string | number | null | undefined) : number | undefine
 }
 
 export const isEntitledStatus = (status : string) : boolean => {
-    return /^(active|trialing)$/i.test(status)
+    // Include 'paid' for one-time purchases
+    return /^(active|trialing|paid)$/i.test(status)
+}
+
+// Extract customer data from various Polar event formats
+export interface PolarCustomerData {
+    id: string
+    email: string | null
+    metadata?: Record<string, unknown> | null
+    activeSubscriptions?: Array<{
+        id?: string
+        status?: string
+        productId?: string
+        priceId?: string
+        currentPeriodEnd?: string | null
+    }> | null
+}
+
+export const extractCustomerLike = (data: unknown): PolarCustomerData | null => {
+    if (!data || typeof data !== "object") return null
+    const d = data as Record<string, unknown>
+    
+    // Check if this is a customer object directly
+    const id = d.id as string | undefined
+    const email = d.email as string | undefined
+    
+    if (typeof id === "string" && typeof email === "string") {
+        return {
+            id,
+            email,
+            metadata: d.metadata as Record<string, unknown> | undefined ?? null,
+            activeSubscriptions: d.activeSubscriptions as PolarCustomerData["activeSubscriptions"] ?? null
+        }
+    }
+    
+    // Check nested customer
+    if (d.customer && typeof d.customer === "object") {
+        const customer = d.customer as Record<string, unknown>
+        const custId = customer.id as string | undefined
+        const custEmail = customer.email as string | undefined
+        if (typeof custId === "string") {
+            return {
+                id: custId,
+                email: custEmail ?? null,
+                metadata: customer.metadata as Record<string, unknown> | undefined ?? null,
+                activeSubscriptions: null
+            }
+        }
+    }
+    
+    return null
+}
+
+// Extract email from any Polar event data
+export const extractEmailFromEvent = (data: unknown): string | null => {
+    if (!data || typeof data !== "object") return null
+    const d = data as Record<string, unknown>
+    
+    // Direct email field
+    if (typeof d.email === "string") return d.email
+    
+    // Customer.email
+    if (d.customer && typeof d.customer === "object") {
+        const customer = d.customer as Record<string, unknown>
+        if (typeof customer.email === "string") return customer.email
+    }
+    
+    // Subscription.customer.email
+    if (d.subscription && typeof d.subscription === "object") {
+        const sub = d.subscription as Record<string, unknown>
+        if (sub.customer && typeof sub.customer === "object") {
+            const customer = sub.customer as Record<string, unknown>
+            if (typeof customer.email === "string") return customer.email
+        }
+    }
+    
+    // User.email
+    if (d.user && typeof d.user === "object") {
+        const user = d.user as Record<string, unknown>
+        if (typeof user.email === "string") return user.email
+    }
+    
+    return null
+}
+
+// Extract userId from metadata in any Polar event
+export const extractUserIdFromMetadata = (data: unknown): string | null => {
+    if (!data || typeof data !== "object") return null
+    const d = data as Record<string, unknown>
+    
+    // Direct metadata.userId
+    if (d.metadata && typeof d.metadata === "object") {
+        const meta = d.metadata as Record<string, unknown>
+        if (typeof meta.userId === "string") return meta.userId
+    }
+    
+    // Subscription.metadata.userId
+    if (d.subscription && typeof d.subscription === "object") {
+        const sub = d.subscription as Record<string, unknown>
+        if (sub.metadata && typeof sub.metadata === "object") {
+            const meta = sub.metadata as Record<string, unknown>
+            if (typeof meta.userId === "string") return meta.userId
+        }
+    }
+    
+    // Customer.metadata.userId
+    if (d.customer && typeof d.customer === "object") {
+        const customer = d.customer as Record<string, unknown>
+        if (customer.metadata && typeof customer.metadata === "object") {
+            const meta = customer.metadata as Record<string, unknown>
+            if (typeof meta.userId === "string") return meta.userId
+        }
+    }
+    
+    return null
 }

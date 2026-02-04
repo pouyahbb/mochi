@@ -1,7 +1,7 @@
 import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { inngest } from "./client";
 import { api } from "../../../convex/_generated/api";
-import { extractOrderLike, extractSubscriptionLike, isEntitledStatus, isPolarWebhookEvent, PolarOrder, PolarSubscription, RecievedEvent, toMs } from "@/types/polar";
+import { extractOrderLike, extractSubscriptionLike, extractCustomerLike, extractEmailFromEvent, extractUserIdFromMetadata, isEntitledStatus, isPolarWebhookEvent, PolarOrder, PolarSubscription, PolarCustomerData, ReceivedEvent, toMs } from "@/types/polar";
 import { Id } from "../../../convex/_generated/dataModel";
 
 export const autosaveProjectWorkflow = inngest.createFunction(
@@ -25,67 +25,128 @@ export const autosaveProjectWorkflow = inngest.createFunction(
 )
 
 const grantKey = (subId : string  , periodEndMs?:number,eventId?:string | number) : string => {
-    return periodEndMs !== null ? `${subId}:${periodEndMs}` : eventId !== null ? `${subId}:evt:${eventId}` : `${subId}:first`
+    return periodEndMs != null ? `${subId}:${periodEndMs}` : eventId != null ? `${subId}:evt:${eventId}` : `${subId}:first`
 }
 
 export const handlePolarEvent = inngest.createFunction(
     {id : "polar-webhook-handler"} , 
-    {event : "polar/webhook.recieved"},
+    {event : "polar/webhook.received"},
     async({event , step}) => {
-        console.log("Inngest starting polar webhook handler" , JSON.stringify(event.data , null , 2))
+        console.log("=== INNGEST FUNCTION TRIGGERED ===")
+        console.log("Function ID: polar-webhook-handler")
+        console.log("Event Name:", event.name)
+        console.log("Event ID:", event.id)
+        console.log("Event Data:", JSON.stringify(event.data , null , 2))
         if(!isPolarWebhookEvent(event.data)){
-            return 
+            console.log("INNGEST: Not a valid Polar webhook event, skipping")
+            return { skipped: true, reason: "invalid-event-shape" }
         }
-        const incomming = event.data as RecievedEvent
-        const type = incomming.type
-        const dataUnknown = incomming.data
+        const incoming = event.data as ReceivedEvent
+        const type = incoming.type
+        const dataUnknown = incoming.data
+
+        console.log("INNGEST: Event type:", type)
 
         const sub : PolarSubscription | null  = extractSubscriptionLike(dataUnknown)
         const order: PolarOrder | null = extractOrderLike(dataUnknown)
-        if(!sub && !order){
-            return 
+        const customer: PolarCustomerData | null = extractCustomerLike(dataUnknown)
+        
+        console.log("INNGEST: Extracted sub:", sub ? "found" : "null")
+        console.log("INNGEST: Extracted order:", order ? "found" : "null")
+        console.log("INNGEST: Extracted customer:", customer ? "found" : "null")
+        
+        // For customer events, we need customer data
+        // For subscription events, we need sub or order
+        const isCustomerEvent = /^customer\./i.test(type)
+        const isSubscriptionEvent = /^subscription\.|^order\./i.test(type)
+        
+        if(!sub && !order && !customer){
+            console.log("INNGEST: No subscription, order, or customer found. Skipping.")
+            return { skipped: true, reason: "no-data" }
         }
+        
         const userId :Id<"users"> | null = await step.run("resolve-user" , async () => {
-            const metaUserId = (sub?.metadata?.userId as string | undefined) ?? (order?.metadata?.userId as string | undefined)
+            // Method 1: Try metadata.userId from various places
+            const metaUserId = extractUserIdFromMetadata(dataUnknown) 
+                ?? (sub?.metadata?.userId as string | undefined) 
+                ?? (order?.metadata?.userId as string | undefined)
+                ?? (customer?.metadata?.userId as string | undefined)
+            
+            console.log("INNGEST: Metadata userId:", metaUserId)
+            
             if(metaUserId){
-                console.log("Inngest , using metadata userId")
+                console.log("INNGEST: Using metadata userId:", metaUserId)
                 return metaUserId as unknown as Id<"users">
             }
-            const email = sub?.customer?.email ?? order?.customer?.email ?? null
-            console.log("inngest, customer email " , email)
+            
+            // Method 2: Try email from various places
+            const email = extractEmailFromEvent(dataUnknown) 
+                ?? sub?.customer?.email 
+                ?? order?.customer?.email 
+                ?? customer?.email
+            
+            console.log("INNGEST: Resolved email:", email)
+            
             if(email){
                 try{
-                    console.log('inngest , looking up user by email' , email)
-                    const foundUserId = await fetchQuery(api.user.getUserIdByEmail  , {
+                    console.log('INNGEST: Looking up user by email:', email)
+                    const foundUserId = await fetchQuery(api.user.getUserIdByEmail, {
                         email
                     })
+                    console.log("INNGEST: Found userId by email:", foundUserId)
                     return foundUserId
                 }catch(err){
-                    console.log("inngest , Failed to resolve email" , err)
+                    console.log("INNGEST: Failed to resolve email", err)
                     return null
                 }
             }
+            
+            console.log("INNGEST: Could not resolve userId by any method")
+            return null
         })
-        console.log("Inngest , Final resolve userId" , userId)
+        console.log("INNGEST: Final resolved userId:", userId)
         if(!userId){
-            console.log("Inngest , no user id resolved. skipping webhook process")
-            return 
+            console.log("INNGEST: No user id resolved. Skipping webhook process.")
+            return { skipped: true, reason: "no-user-id" }
         }
-        const polarSubscriptionId = sub?.id ?? order?.subscription_id ?? ""
+        
+        // Get subscription ID from various sources
+        // For one-time purchases, use order.id as the subscription ID
+        const activeSubFromCustomer = customer?.activeSubscriptions?.[0]
+        const isOneTimePurchase = order && !order.subscription_id
+        const polarSubscriptionId = sub?.id 
+            ?? order?.subscription_id 
+            ?? (isOneTimePurchase ? order?.id : null) // Use order.id for one-time purchases
+            ?? activeSubFromCustomer?.id 
+            ?? customer?.id // Fall back to customer ID for customer events
+            ?? ""
+            
         if(!polarSubscriptionId){
-            console.log("inngest , no polar subscription id found. skipping")
-            return
+            console.log("INNGEST: No polar subscription/customer/order id found. Skipping.")
+            return { skipped: true, reason: "no-subscription-id" }
         }
-        const currentPeriodEnd = toMs(sub?.current_period_end)
+        
+        console.log("INNGEST: polarSubscriptionId:", polarSubscriptionId)
+        console.log("INNGEST: isOneTimePurchase:", isOneTimePurchase)
+        
+        // Determine status from subscription, order, or activeSubscriptions
+        // For one-time purchases, use order status (e.g., 'paid')
+        const status = sub?.status 
+            ?? (isOneTimePurchase && order ? "paid" : null)
+            ?? activeSubFromCustomer?.status 
+            ?? (customer?.activeSubscriptions && customer.activeSubscriptions.length > 0 ? "active" : "updated")
+        
+        const currentPeriodEnd = toMs(sub?.current_period_end) 
+            ?? toMs(activeSubFromCustomer?.currentPeriodEnd)
+            
         const payload = {
             userId,
-            // Ensure required string for Convex arg; fall back to empty string if missing
-            polarCustomerId : sub?.customer?.id ?? sub?.customer_id ?? "",
+            polarCustomerId : sub?.customer?.id ?? sub?.customer_id ?? customer?.id ?? "",
             polarSubscriptionId,
-            productId : sub?.product_id ?? sub?.product?.id ?? undefined,
-            priceId : sub?.prices?.[0]?.id ?? undefined,
+            productId : sub?.product_id ?? sub?.product?.id ?? activeSubFromCustomer?.productId ?? undefined,
+            priceId : sub?.prices?.[0]?.id ?? activeSubFromCustomer?.priceId ?? undefined,
             planCode : sub?.plan_code ?? sub?.product?.name ?? undefined,
-            status : sub?.status ?? "updated",
+            status,
             currentPeriodEnd,
             trialEndsAt:toMs(sub?.trial_ends_at),
             cancelAt : toMs(sub?.cancel_at),
@@ -121,20 +182,32 @@ export const handlePolarEvent = inngest.createFunction(
                 throw err
             }
         })
-        const looksCreate = /subscription\.created/i.test(type)
-        const looksRenew = /subscription\.renew|order\.created|invoice\.paid|order\.paid/i.test(type)
+        // Detect event types that should trigger subscription handling
+        const looksCreate = /subscription\.created|subscription\.active|checkout\.created/i.test(type)
+        const looksRenew = /subscription\.renew|subscription\.updated|invoice\.paid/i.test(type)
+        const isOrderEvent = /order\.created|order\.updated|order\.paid/i.test(type)
+        const isCustomerStateChange = /customer\.state_changed/i.test(type)
         const entitled = isEntitledStatus(payload.status)
-        console.log("INNGEST , credit granting analysis : ")
-        console.log(" - Event type: " , type)
-        console.log(" - Loos like create: " , looksCreate)
-        console.log(" - Loos like renew: " , looksRenew)
-        console.log(" - User entitled : " ,entitled)
-        console.log(" - Status:" , payload.status)
+        
+        console.log("INNGEST: Credit granting analysis:")
+        console.log(" - Event type:", type)
+        console.log(" - Looks like create:", looksCreate)
+        console.log(" - Looks like renew:", looksRenew)
+        console.log(" - Is order event:", isOrderEvent)
+        console.log(" - Is one-time purchase:", isOneTimePurchase)
+        console.log(" - Is customer state change:", isCustomerStateChange)
+        console.log(" - User entitled:", entitled)
+        console.log(" - Status:", payload.status)
 
-        const idk = grantKey(polarSubscriptionId , currentPeriodEnd , incomming.id)
+        const idk = grantKey(polarSubscriptionId , currentPeriodEnd , incoming.id)
 
-        console.log("INNGEST , Idempotency key : " , idk)
-        if(entitled && (looksCreate || looksRenew || true)){
+        console.log("INNGEST: Idempotency key:", idk)
+        
+        // Grant credits on subscription create/renew, order events (one-time purchases), or customer state change
+        const shouldGrantCredits = entitled && (looksCreate || looksRenew || isOrderEvent || isCustomerStateChange)
+        console.log("INNGEST: Should grant credits:", shouldGrantCredits)
+        
+        if(shouldGrantCredits){
             const grant = await step.run("grant-credits" , async() => {
                 try{
                     console.log("INNGEST , Granting credits to subscription: " , subscriptionId)
@@ -173,7 +246,7 @@ export const handlePolarEvent = inngest.createFunction(
                 data : {
                     userId,
                     polarSubscriptionId,
-                    statis : payload.status,
+                    status : payload.status,
                     currentPeriodEnd
                 }
             })

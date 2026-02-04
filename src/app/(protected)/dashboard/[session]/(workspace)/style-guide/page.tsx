@@ -18,18 +18,31 @@ const Page = async ({searchParams} : Props) => {
     const projectId = (await searchParams).project
     const existingStyleGuide = await StyleGuideQuery(projectId)
 
-    const guide = existingStyleGuide.styleGuide?._valueJSON as unknown as StyleGuide
+    // Parse the style guide string if it exists
+    const styleGuideString = existingStyleGuide.styleGuide?._valueJSON as string | null | undefined
+    let guide: StyleGuide | null = null
+    
+    if (styleGuideString) {
+        try {
+            guide = typeof styleGuideString === 'string' 
+                ? JSON.parse(styleGuideString) 
+                : styleGuideString as StyleGuide
+        } catch (error) {
+            console.error('Failed to parse style guide:', error)
+            guide = null
+        }
+    }
+
     const colorGuide = guide?.colorSections || []
     const typographyGuide = guide?.typographySections || []
     const existingMoodBoardImages = await MoodBoardImagesQuery(projectId)
     const guideImages = existingMoodBoardImages.images._valueJSON as unknown as MoodBoardImage[]
 
 
-
     return (
         <div>
             <TabsContent value="colours" className='space-y-8'>
-                {!guideImages.length ? (
+                {!colorGuide || colorGuide.length === 0 ? (
                     <div className='space-y-8'>
                         <div className='text-center py-20'>
                             <div className='w-16 h-16 mx-auto mb-4 rounded-lg bg-muted flex items-center justify-center'>

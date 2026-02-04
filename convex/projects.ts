@@ -93,7 +93,9 @@ export const getProjectStyleGuide = query({
             throw new Error("Access denied")
         }
 
-        return project.styleGuide ? JSON.stringify(project.styleGuide) : null
+        // styleGuide is already stored as a JSON string in the DB
+        // Return it directly without double-stringifying
+        return project.styleGuide ?? null
     }
 })
 
@@ -115,5 +117,23 @@ export const updateProjectSketches = mutation({
        }
        await ctx.db.patch(projectId , updateData)
        return {success : true}
+    }
+})
+
+export const updateProjectStyleGuide = mutation({
+    args : {
+        projectId : v.id("projects"),
+        styleGuideData : v.any()
+    },
+    handler : async(ctx , {projectId , styleGuideData}) => {
+        const userId = await getAuthUserId(ctx)
+        if(!userId) throw new Error("Not authorized")
+
+        const project = await ctx.db.get(projectId)
+        if(!project) throw new Error("Project not found")
+        if(project.userId !== userId) throw new Error("Access denied")
+        
+        await ctx.db.patch(projectId , {styleGuide : JSON.stringify(styleGuideData), lastModified : Date.now()})
+        return {success : true , styleGuide : styleGuideData}
     }
 })

@@ -4,8 +4,7 @@ import { toast } from "sonner"
 
 export const useSubscriptionPlan = () => {
     const [trigger , {isFetching}] = useLazyGetCheckoutQuery()
-    const profile = useAppSelector(state => state.profile)
-    const id = profile?.id
+    const {id} = useAppSelector(state => state.profile)
     const onSubscribe = async () => {
         if (!id) {
             toast.error("You need to be signed in to manage billing.")

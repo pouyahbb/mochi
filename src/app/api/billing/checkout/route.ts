@@ -5,7 +5,7 @@ export async function GET(req : NextRequest){
     const {searchParams} = new URL(req.url)
     const userId = searchParams.get("userId")
     if(!userId){
-        return NextResponse.json({error : "UserID is required"} , {status : 400})
+        return NextResponse.json({error : "userID is required"} , {status : 400})
     }
 
     const accessToken = process.env.POLAR_ACCESS_TOKEN
