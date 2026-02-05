@@ -7,6 +7,7 @@ import { Ellipse } from './ellipse'
 import { Stroke } from './stroke'
 import { Line } from './line'
 import { Text } from './text'
+import GeneratedUI from './generatedui'
 
 type Props = {
     shape: Shape
@@ -38,9 +39,12 @@ const ShapeRenderer = ({
             return <Line shape={shape} />
         case 'text':
             return <Text shape={shape} />
+        case "generatedui":
+            <GeneratedUI shape={shape} toggleChat={toggleChat} generateWorkflow={generateWorkflow} exportDesign={exportDesign} />
         default:
             return null
     }
+
 }
 
 export default ShapeRenderer

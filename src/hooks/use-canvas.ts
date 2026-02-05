@@ -1,12 +1,13 @@
 "use client"
-import { addArrow, addEllipse, addFrame, addFreeDrawShape, addLine, addRect, addText, clearSelection, FrameShape, removeShape, selectShape, setTool, Shape, Tool, updateShape } from "@/redux/slice/shapes"
+import { addArrow, addEllipse, addFrame, addFreeDrawShape, addGeneratedUI, addLine, addRect, addText, clearSelection, FrameShape, removeShape, selectShape, setTool, Shape, Tool, updateShape } from "@/redux/slice/shapes"
 import { handToolDisable, handToolEnable, panEnd, panMove, panStart, Point, screenToWorld, wheelPan, wheelZoom } from "@/redux/slice/viewport"
 import { AppDispatch, useAppDispatch, useAppSelector } from "@/redux/store"
 import { useDispatch } from "react-redux"
 import { useProjectCreation } from "./use-project"
 import React, { useEffect, useRef, useState } from "react"
-import { de } from "date-fns/locale"
 import { downloadBlob, generateFrameSnapshot } from "@/lib/frame-snapshot"
+import { nanoid } from "@reduxjs/toolkit"
+import { toast } from "sonner"
 
 interface TouchPointer  {
     id : number
@@ -706,13 +707,74 @@ export const useFrame = (shape : FrameShape) => {
             const urlParams = new URLSearchParams(window.location.search)
             const projectId = urlParams.get("project")
             if(projectId){
-                formData.append("projectId" , projectId)
-                     
+                formData.append("projectId" , projectId)         
             }
-        }catch(err){
+            const response = await fetch("/api/generate" , {
+                method : "POST",
+                body : formData
+            })
+            if(!response.ok){
+                const errorText = await response.text()
+                console.error("Failed to generate design" , errorText)
+                throw new Error(`API request failed : ${response.status} ${response.statusText} - ${errorText}`)
+            }
+            const generatedUIPosition = {
+                x : shape.x + shape.w + 50,
+                y : shape.y,
+                w : Math.max(400 , shape.w),
+                h : Math.max(300 , shape.h)
+            }
+            const generatedUIID = nanoid()
+            dispatch(addGeneratedUI({
+                ...generatedUIPosition,
+                id : generatedUIID,
+                uiSpecData : null,
+                sourceFrameId : shape.id
+            }))
+            const reader = response.body?.getReader()
+            const decoder = new TextDecoder()
+            let accumulatedData = ""
 
+            let lastUpdateTime = 0
+            const UPDATE_THROTTLE_MS = 500
+
+            if(reader) {
+                try{
+                    while(true){
+                        const {done , value} = await reader.read()
+                        if(done){
+                            dispatch(updateShape({
+                                id : generatedUIID,
+                                patch : {
+                                    uiSpecData : accumulatedData
+                                }
+                            }))
+                            break
+                        }
+                        const chunk = decoder.decode(value)
+                        accumulatedData += chunk
+                        const now = Date.now()
+                        if(now - lastUpdateTime >= UPDATE_THROTTLE_MS){
+                            dispatch(updateShape({
+                                id : generatedUIID,
+                                patch : {
+                                    uiSpecData : accumulatedData
+                                }
+                            }))
+                            lastUpdateTime = now
+                        }
+                    }
+                }finally{
+                    reader.releaseLock()
+                }
+            }
+            
+        }catch(err){
+            console.error("Failed to generate design" , err)
+            toast.error(`Failed to generate UI design : ${err instanceof Error ? err.message : "Unknown error"}`)
+        }finally{
+            setIsGenerating(false)
         }
      }
-
      return {isGenerating , handleGenerateDesign}
 }
