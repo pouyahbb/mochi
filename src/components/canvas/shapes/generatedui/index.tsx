@@ -14,6 +14,16 @@ type Props = {
 
 const GeneratedUI = ({shape, toggleChat, generateWorkflow, exportDesign}: Props) => {
     const {containerRef, sanitizeHtml} = useUpdatContainer(shape)
+    
+    // Debug logging
+    React.useEffect(() => {
+        console.log("GeneratedUI rendered:", {
+            id: shape.id,
+            hasData: !!shape.uiSpecData,
+            dataLength: shape.uiSpecData?.length || 0,
+            position: { x: shape.x, y: shape.y, w: shape.w, h: shape.h }
+        })
+    }, [shape.id, shape.uiSpecData, shape.x, shape.y, shape.w, shape.h])
 
     const handleGenerateWorkflow = () => {
         generateWorkflow(shape.id)

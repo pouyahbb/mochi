@@ -1,6 +1,6 @@
 import { FrameShape } from '@/redux/slice/shapes'
 import {LiquidButton}  from '@/components/buttons/liquid-button'
-import { Brush , Palette } from 'lucide-react';
+import { Brush , Loader2, Palette } from 'lucide-react';
 import {useFrame} from '@/hooks/use-canvas'
 
 
@@ -40,7 +40,7 @@ export const Frame = ({
                     Inpiration
                 </LiquidButton>
                 <LiquidButton size="sm" variant='subtle' onClick={handleGenerateDesign} disabled={isGenerating} className={isGenerating ? "animate-pulse" : ""} style={{pointerEvents : "auto"}}>
-                    <Brush className={isGenerating ? "animate-spin" : ""} size={12} />
+                    {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brush size={12} />}
                     {isGenerating ? "Generating..." : "Generate Design"}
                 </LiquidButton>
                 

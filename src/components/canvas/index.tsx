@@ -1,6 +1,6 @@
 "use client"
 
-import { useInfiniteCanvas } from '@/hooks/use-canvas'
+import { useInfiniteCanvas, useInspiration } from '@/hooks/use-canvas'
 import React from 'react'
 import TextSidebar from './text-sidebar'
 import { cn } from '@/lib/utils'
@@ -12,6 +12,7 @@ import { EllipsePreview } from './shapes/ellipse/preview'
 import { LinePreview } from './shapes/line/preview'
 import { StrokePreview } from './shapes/stroke/preview'
 import SelectionOverlay from './shapes/selection'
+import InspirationSidebar from './shapes/inspiration-sidebar'
 
 const InfiniteCanvas = () => {
     const {
@@ -32,13 +33,31 @@ const InfiniteCanvas = () => {
         viewport 
     } = useInfiniteCanvas()
 
+    const {isInspirationOpen , closeInspiration , toggleInspiration} = useInspiration()
+
     const draftShape = getDraftShape()
     const freeDrawPoints = getFreeDrawPoints()
+
+    // Placeholder functions for generatedUI features
+    const toggleChat = (generatedUIId: string) => {
+        console.log("Toggle chat for:", generatedUIId)
+        // TODO: Implement chat functionality
+    }
+
+    const generateWorkflow = (generatedUIId: string) => {
+        console.log("Generate workflow for:", generatedUIId)
+        // TODO: Implement workflow generation
+    }
+
+    const exportDesign = (generatedUIId: string, element: HTMLElement | null) => {
+        console.log("Export design for:", generatedUIId, element)
+        // TODO: Implement export functionality
+    }
 
     return (
         <>
             <TextSidebar isOpen={isSidebarOpen && hasSelectedText} />
-
+            <InspirationSidebar isOpen={isInspirationOpen} onClose={closeInspiration} />
             <div 
                 className={cn("relative w-full h-full overflow-hidden select-none z-0", {
                     "cursor-grabbing" : viewport.mode === "panning",
@@ -69,10 +88,10 @@ const InfiniteCanvas = () => {
                         <ShapeRenderer  
                             key={shape.id}
                             shape={shape}
-                            // toggleInspiration={toggleInspiration}
-                            // toggleChat={toggleChat}
-                            // generateWorkflow={generateWorkflow}
-                            // exportDesign={exportDesign}
+                            toggleInspiration={toggleInspiration}
+                            toggleChat={toggleChat}
+                            generateWorkflow={generateWorkflow}
+                            exportDesign={exportDesign}
                         />
                     ))}
                     {shapes.map(shape => (

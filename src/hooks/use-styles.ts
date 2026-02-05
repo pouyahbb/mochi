@@ -316,9 +316,11 @@ export const useUpdatContainer = (shape : GeneratedUIShape) => {
             .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
             .replace(/on\w+="[^"]*"/gi, "")
             .replace(/javascript:/gi, "")
-            .replace(/data:/gi  , "")
-            return sanitized
-        }
+            // Only remove data: URLs (like data:image/png;base64,), not HTML data attributes
+            .replace(/data:image\/[^;]+;base64,[^"'\s]+/gi, "")
+            .replace(/data:text\/[^;]+;base64,[^"'\s]+/gi, "")
+        return sanitized
+    }
     return {
         containerRef,
         sanitizeHtml

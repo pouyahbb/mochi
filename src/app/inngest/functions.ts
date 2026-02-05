@@ -136,7 +136,7 @@ export const handlePolarEvent = inngest.createFunction(
             ?? activeSubFromCustomer?.status 
             ?? (customer?.activeSubscriptions && customer.activeSubscriptions.length > 0 ? "active" : "updated")
         
-        const currentPeriodEnd = toMs(sub?.current_period_end) 
+        const currentPeriodEnd = toMs(sub?.current_period_end)
             ?? toMs(activeSubFromCustomer?.currentPeriodEnd)
             
         const payload = {

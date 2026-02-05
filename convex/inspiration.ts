@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const getInspirationImages = query({
@@ -33,4 +33,82 @@ export const getInspirationImages = query({
         const validImages = images.filter(image => image !== null).sort((a , b) => a!.index - b!.index)
         return validImages
     } 
+})
+
+export const generateUploadUrl = mutation({
+    handler : async (ctx) => {
+        const userId = await getAuthUserId(ctx)
+        if(!userId){
+            throw new Error("Not authorized")
+        }
+        return await ctx.storage.generateUploadUrl()
+    }
+})
+export const addInspirationImage = mutation({
+    args : {
+        projectId : v.id("projects"),
+        storageId : v.id("_storage")
+    },
+    handler : async(ctx , {projectId,storageId}) => {
+        const userId = await getAuthUserId(ctx)
+        if(!userId){
+            throw new Error("Not authorized")
+        }
+        const project = await ctx.db.get(projectId)
+        if(!project){
+            throw new Error("Project not found")
+        }
+        if(project.userId !== userId){
+            throw new Error("Access denied")
+        }
+        const currentImages = project.inspirationImages || []
+        if(currentImages.includes(storageId)){
+            return {success : true , message : "Image already added"}
+        }
+        if(currentImages.length >= 6){
+            throw new Error("Maximum 6 images allowed")
+        }
+        const updatedImages = [...currentImages , storageId]
+        await ctx.db.patch(projectId , {
+            inspirationImages : updatedImages,
+            lastModified : Date.now()
+        })
+        return {success : true , message : "Inspiration image added successfully" , totalImages : updatedImages.length}
+    }
+})
+
+export const removeInspirationImage = mutation({
+    args : {
+        projectId : v.id("projects"),
+        storageId : v.id("_storage")
+    },
+    handler : async(ctx , {projectId,storageId}) => {
+        const userId = await getAuthUserId(ctx)
+        if(!userId){
+            throw new Error("Not authorized")
+        }
+        const project = await ctx.db.get(projectId)
+        if(!project){
+            throw new Error("Project not found")
+        }
+        if(project.userId !== userId){
+            throw new Error("Access denied")
+        }
+        const currentImages = project.inspirationImages || []
+        const updatedImages = currentImages.filter(id => id !== storageId)
+        await ctx.db.patch(projectId , {
+            inspirationImages : updatedImages,
+            lastModified : Date.now()
+        })
+        try{
+            await ctx.storage.delete(storageId)
+        }catch(err){
+            console.error(`Failed to delete image ${storageId} from storage. reason ${err}`)
+        }
+        return {
+            success : true , 
+            message : "Inspiration image removed successfully" , 
+            remainingImages : updatedImages.length
+        }
+    }
 })

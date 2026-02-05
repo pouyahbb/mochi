@@ -701,7 +701,12 @@ export const useFrame = (shape : FrameShape) => {
             const snapshot = await generateFrameSnapshot(shape , allShapes)
             downloadBlob(snapshot , `frame-${shape.frameNumber}-snapshot.png`)
             const formData = new FormData()
-            formData.append("image" , snapshot , `frame-${shape.frameNumber}-snapshot.png`)
+            // Convert Blob to File with proper type
+            const imageFile = new File([snapshot], `frame-${shape.frameNumber}-snapshot.png`, {
+                type: "image/png",
+                lastModified: Date.now()
+            })
+            formData.append("image" , imageFile)
             formData.append("frameNumber" , shape.frameNumber.toString())
 
             const urlParams = new URLSearchParams(window.location.search)
@@ -777,4 +782,19 @@ export const useFrame = (shape : FrameShape) => {
         }
      }
      return {isGenerating , handleGenerateDesign}
+}
+
+
+export const useInspiration = () => {
+    const [isInspirationOpen , setIsInspirationOpen] = useState(false)
+    const toggleInspiration = () => {
+        setIsInspirationOpen(!isInspirationOpen)
+    }
+    const openInspiration = () => {
+        setIsInspirationOpen(true)
+    }
+    const closeInspiration = () => {
+        setIsInspirationOpen(false)
+    }
+    return {isInspirationOpen , toggleInspiration , closeInspiration , openInspiration}
 }
