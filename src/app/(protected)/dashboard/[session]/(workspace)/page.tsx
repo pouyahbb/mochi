@@ -3,7 +3,7 @@ import ProjectProviders from '@/components/projects/list/provider'
 import { ProjectsQuery } from '@/convex/query.config'
 import React from 'react'
 
-const Page = async () => {
+export default async function Page() {
     const {profile , projects} = await ProjectsQuery()
     if(!profile){
         return (
@@ -21,11 +21,9 @@ const Page = async () => {
     }
     return (
         <ProjectProviders initialProjects={projects}>
-            <div className='conteiner mx-auto py-36 px-4'>
+            <div className='container mx-auto py-36 px-4'>
                 <ProjectsList />
             </div>
         </ProjectProviders>
     )
 }
-
-export default Page

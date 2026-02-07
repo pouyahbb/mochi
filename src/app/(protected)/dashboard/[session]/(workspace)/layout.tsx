@@ -5,13 +5,13 @@ import { redirect } from 'next/navigation'
 import React from 'react'
 
 type Props = {
-  children: React.ReactNode
-  params: { session: string }
+    children : React.ReactNode
+    params : Promise<{ session : string }>
 }
 
-const Layout = async ({children , params} : Props) => {
+export default async function Layout({children , params} : Props) {
     const {profileName , entitlement} = await SubscriptionEntitlementQuery()
-  const { session } = params
+    const { session } = await params
     const expectedSlug = combineSlug(profileName!)
     
     if(!entitlement._valueJSON) {
@@ -28,5 +28,3 @@ const Layout = async ({children , params} : Props) => {
         </div>
     )
 }
-
-export default Layout
