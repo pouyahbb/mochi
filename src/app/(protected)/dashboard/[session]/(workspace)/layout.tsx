@@ -2,15 +2,16 @@ import Navbar from '@/components/navbar'
 import { SubscriptionEntitlementQuery } from '@/convex/query.config'
 import { combineSlug } from '@/lib/utils'
 import { redirect } from 'next/navigation'
+import React from 'react'
 
 type Props = {
-    children : React.ReactNode
-    params : Promise<{ session : string }>
+  children: React.ReactNode
+  params: { session: string }
 }
 
 const Layout = async ({children , params} : Props) => {
     const {profileName , entitlement} = await SubscriptionEntitlementQuery()
-    const { session } = await params
+  const { session } = params
     const expectedSlug = combineSlug(profileName!)
     
     if(!entitlement._valueJSON) {
