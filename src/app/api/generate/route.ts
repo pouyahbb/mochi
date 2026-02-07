@@ -30,57 +30,54 @@ export const POST = async (req : NextRequest) => {
         }
         const imageBuffer = await imageFile.arrayBuffer()
         const base64String = Buffer.from(imageBuffer).toString("base64")
-        // Format for Anthropic API: data:image/{type};base64,{data}
         const base64Image = `data:${imageFile.type};base64,${base64String}`
         const styleGuide = await StyleGuideQuery(projectId)
-        const guide = styleGuide.styleGuide._valueJSON as unknown as {
-            colorSections : string[],
-            typographySections : string[],
-        } 
+        const guide = styleGuide?.styleGuide?._valueJSON as unknown as {
+            colorSections? : unknown[],
+            typographySections? : unknown[],
+        } | null | undefined
 
         const inspirationImages = await InspirationImagesQuery(projectId)
         const images = inspirationImages.images._valueJSON as unknown as {url : string}[]
         const imagesUrls = images.map(img => img.url).filter(Boolean)
-        const colors = guide.colorSections || []
-        const typography = guide.typographySections || []
+        const colors = (guide?.colorSections || []) as Array<{
+            swatches: Array<{ name: string; hexColor: string; description: string }>
+        }>
+        const typography = (guide?.typographySections || []) as Array<{
+            styles: Array<{ name: string; fontFamily: string; fontSize: string; fontWeight: string; lineHeight: string; letterSpacing?: string; description: string }>
+        }>
         const systemPrompt = prompts.generativeUi.system
-        const userPrompt = `
-            Use the user-provided styleGuide for all visual decisions: map its colors , typography scale , spacing and radii directly to Tailwind v4 utilities (use arbitrary color classes like text-[#RRGGBB] / bg-[#RRGGBB] when hexes are given),
-            enforce WCAG AA contrast (>=4.5.1 body, >3:1 large text) , and if any token is missing fall back to natural light default. Never invert new tokens; Keep usage consistent across components.
+        
+        // Build a concise user prompt that references the component library
+        let userPrompt = `Convert this wireframe into production-ready HTML using the COMPONENT LIBRARY and TEMPLATES provided in the system prompt.
 
-            Inspiration images (URLs):
-            You will receive up to 6 image URLs in images[].
+INSTRUCTIONS:
+1. Analyze the wireframe image to identify layout structure and components
+2. Select the best matching PAGE TEMPLATE as your starting point
+3. Use COMPONENT LIBRARY pieces for each UI element (buttons, cards, tables, etc.)
+4. Apply the style guide colors to the .c-* classes in the <style> block
+5. Fill in realistic content inspired by the wireframe and inspiration images
+`
 
-            Use them only for interpretation (mood/keywords/subject matter) to bias choices within the existing StyleGuide tokens(e.g., which primary/secondary to emphasize, where accent appears, light vs. dark sections).
+        if(colors.length > 0){
+            userPrompt += `\n\nSTYLE GUIDE COLORS:\n${colors.map(color => color.swatches.map(swatch => `${swatch.name}: ${swatch.hexColor}`).join(", ")).join(", ")}`
+        }
+        if(typography.length > 0){
+            userPrompt += `\n\nTYPOGRAPHY:\n${typography.map(t => t.styles.map(s => `${s.name}: ${s.fontFamily} ${s.fontSize} ${s.fontWeight}`).join(", ")).join(", ")}`
+        }
+        if(imagesUrls.length > 0){
+            userPrompt += `\n\nINSPIRATION IMAGES: ${imagesUrls.length} reference images provided for visual style.`
+        }
 
-            Do not derive new colors or fonts from images; do not create tokens that aren't in StyleGuide.
-
-            Do not echo the URLs in the output JSON: use them purely as inspiration.
-
-            If an image URL is unreachable/invalid , ignore it without degrading output quality.
-
-            If images  imply low-contrast contexts, adjust class pairings (e.g., text-[#ffffff] on bg-[#0A0A0A], stronger border/ring from tokens) to maintain accessibility while staying inside the StyleGuide.
-
-            For any required illustrative slots, use a public placeholder image(deterministic seed) only if the schema requires an image field; otherwise don't include images in the JSON.
-
-            on conflicts: the StyleGuide always wins over image uses.
-
-            colors : ${colors.map((color:any) => color.swatches.map((swatch:any) => {
-                return `${swatch.name}: ${swatch.hexColor}, ${swatch.description}`
-            }).join(", ")).join(", ")}
-            typography : ${typography.map((typography:any) => typography.styles.map((style:any) => {
-                return `${style.name}: ${style.fontFamily}, ${style.fontSize}, ${style.fontWeight}, ${style.lineHeight}, ${style.letterSpacing}, ${style.description}`
-            }).join(", ")).join(", ")}
-        `
         const result = streamText({
-            model : anthropic("claude-opus-4-20250514"),
+            model : anthropic("claude-sonnet-4-20250514"),
             messages : [
                 {
                     role : "user",
                     content : [
                         {
                             type : "text",
-                            text:userPrompt
+                            text: userPrompt
                         },
                         {
                             type: "image",
@@ -94,21 +91,13 @@ export const POST = async (req : NextRequest) => {
                 }
             ],
             system : systemPrompt,
-            temperature : 0.7,
+            temperature : 0.5,
         })
         const stream = new ReadableStream({
             async start(controller){
-                let totalChunk =0
-                let totalLength = 0
-                let accumulatedData = ""
-
                 try{
                     for await (const chunk of result.textStream){
-                        totalChunk++
-                        totalLength += chunk.length
-                        accumulatedData += chunk
                         const encoder = new TextEncoder()
-
                         controller.enqueue(encoder.encode(chunk))
                     }
                     controller.close()

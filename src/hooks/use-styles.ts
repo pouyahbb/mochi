@@ -294,22 +294,58 @@ export const useStyleGuide = (projectId : string , images : MoodBoardImage[] , f
 export const useUpdatContainer = (shape : GeneratedUIShape) => {
     const dispatch = useAppDispatch()
     const containerRef = useRef<HTMLDivElement>(null)
+    const resizeObserverRef = useRef<ResizeObserver | null>(null)
+    
     useEffect(() => {
         if(containerRef.current && shape.uiSpecData){
+            // Use ResizeObserver for better performance and accuracy
+            if(!resizeObserverRef.current) {
+                resizeObserverRef.current = new ResizeObserver((entries) => {
+                    for(const entry of entries) {
+                        const actualHeight = entry.contentRect.height
+                        if(actualHeight > 0 && Math.abs(actualHeight - shape.h) > 10){
+                            dispatch(updateShape({
+                                id : shape.id,
+                                patch : {
+                                    h : actualHeight
+                                }
+                            }))
+                        }
+                    }
+                })
+            }
+            
+            resizeObserverRef.current.observe(containerRef.current)
+            
+            // Also check immediately
             const timeoutId = setTimeout(() => {
                 const actualHeight = containerRef.current?.offsetHeight || 0
-                    if(actualHeight > 0 && Math.abs(actualHeight - shape.h) > 10){
-                        dispatch(updateShape({
-                            id : shape.id,
-                            patch : {
-                                h : actualHeight
-                            }
-                        }))
-                    } 
-            } ,100)
-            return () => clearTimeout(timeoutId)
+                if(actualHeight > 0 && Math.abs(actualHeight - shape.h) > 10){
+                    dispatch(updateShape({
+                        id : shape.id,
+                        patch : {
+                            h : actualHeight
+                        }
+                    }))
+                } 
+            } , 100)
+            
+            return () => {
+                clearTimeout(timeoutId)
+                if(resizeObserverRef.current && containerRef.current) {
+                    resizeObserverRef.current.unobserve(containerRef.current)
+                }
+            }
         }
     } , [shape.uiSpecData , shape.id , shape.h , dispatch])
+    
+    useEffect(() => {
+        return () => {
+            if(resizeObserverRef.current && containerRef.current) {
+                resizeObserverRef.current.disconnect()
+            }
+        }
+    }, [])
     const sanitizeHtml = (html : string) => {
         const sanitized = html
             .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")

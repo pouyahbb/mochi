@@ -39,7 +39,8 @@ const GeneratedUI = ({ shape, toggleChat, generateWorkflow, exportDesign }: Prop
                 left: shape.x,
                 top: shape.y,
                 width: shape.w,
-                height: 'auto'
+                height: 'auto',
+                overflow: 'visible'
             }}
         >
             <div
@@ -49,7 +50,8 @@ const GeneratedUI = ({ shape, toggleChat, generateWorkflow, exportDesign }: Prop
                     padding: '16px',
                     height: 'auto',
                     minHeight: '120px',
-                    position: 'relative'
+                    position: 'relative',
+                    overflow: 'visible'
                 }}
             >
                 <div
@@ -58,7 +60,8 @@ const GeneratedUI = ({ shape, toggleChat, generateWorkflow, exportDesign }: Prop
                         pointerEvents: 'none',
                         height: 'auto',
                         maxWidth: '100%',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        overflow: 'visible'
                     }}
                 >
                     <div className="absolute -top-8 right-0 flex gap-2">

@@ -91,18 +91,28 @@ const shapesAdapter = createEntityAdapter<Shape , string>({
 
 type SelectionMap = Record<string  , true>
 
+interface HistoryState {
+    past : EntityState<Shape, string>[]
+    future : EntityState<Shape, string>[]
+}
+
 interface ShapesState {
     tool : Tool
     shapes : EntityState<Shape , string>
     selected : SelectionMap
     frameCounter : number
+    history : HistoryState
 }
 
 const initialState: ShapesState  = {
     tool  : "select",
     shapes : shapesAdapter.getInitialState(),
     selected : {},
-    frameCounter : 0
+    frameCounter : 0,
+    history : {
+        past : [],
+        future : []
+    }
 }
 
 const DEFAULTS = {stroke : "#fff" , strokeWidth : 2 as const}
@@ -286,6 +296,18 @@ const makeGeneratedUI = (p : {
     isWorkflowPage : p.isWorkflowPage
 })
 
+// Helper function to save state to history
+const saveToHistoryHelper = (state: ShapesState) => {
+    const currentState = JSON.parse(JSON.stringify(state.shapes))
+    state.history.past.push(currentState)
+    // Limit history to last 50 states
+    if(state.history.past.length > 50) {
+        state.history.past.shift()
+    }
+    // Clear future when new action is performed
+    state.history.future = []
+}
+
 const shapesSlice = createSlice({
     name : "shapes",
     initialState ,
@@ -294,7 +316,20 @@ const shapesSlice = createSlice({
             state.tool = action.payload
             if(action.payload !== "select") state.selected = {}
         },
+        undo(state) {
+            if(state.history.past.length === 0) return
+            const previousState = state.history.past.pop()!
+            state.history.future.unshift(JSON.parse(JSON.stringify(state.shapes)))
+            state.shapes = previousState
+        },
+        redo(state) {
+            if(state.history.future.length === 0) return
+            const nextState = state.history.future.shift()!
+            state.history.past.push(JSON.parse(JSON.stringify(state.shapes)))
+            state.shapes = nextState
+        },
         addFrame(state , action:PayloadAction<Omit<Parameters<typeof makeFrame>[0], "frameNumber">>) {
+            saveToHistoryHelper(state)
             state.frameCounter += 1
             const frameWithNumber  = {
                 ...action.payload,
@@ -303,36 +338,50 @@ const shapesSlice = createSlice({
             shapesAdapter.addOne(state.shapes , makeFrame(frameWithNumber))
         },
         addRect(state , action : PayloadAction<Parameters<typeof makeRect>[0]>) {
+            saveToHistoryHelper(state)
             shapesAdapter.addOne(state.shapes , makeRect(action.payload))
         },
         addEllipse(state , action : PayloadAction<Parameters<typeof makeEllipse>[0]>) {
+            saveToHistoryHelper(state)
             shapesAdapter.addOne(state.shapes , makeEllipse(action.payload))
         },
         addFreeDrawShape(state , action : PayloadAction<Parameters<typeof makeFree>[0]>) {
             const {points} = action.payload
             if(!points || points.length === 0) return 
-
+            saveToHistoryHelper(state)
             shapesAdapter.addOne(state.shapes , makeFree(action.payload))
         },
         addArrow(state , action:PayloadAction<Parameters<typeof makeArrow>[0]>) {
+            saveToHistoryHelper(state)
             shapesAdapter.addOne(state.shapes , makeArrow(action.payload))
         },
         addLine(state , action:PayloadAction<Parameters<typeof makeLine>[0]>) {
+            saveToHistoryHelper(state)
             shapesAdapter.addOne(state.shapes , makeLine(action.payload))
         },
         addText(state , action:PayloadAction<Parameters<typeof makeText>[0]>) {
+            saveToHistoryHelper(state)
             shapesAdapter.addOne(state.shapes , makeText(action.payload))
         },
         addGeneratedUI(state , action:PayloadAction<Parameters<typeof makeGeneratedUI>[0]>) {
+            saveToHistoryHelper(state)
             shapesAdapter.addOne(state.shapes , makeGeneratedUI(action.payload))
         },
         updateShape(state , action:PayloadAction<{id : string; patch : Partial<Shape>}>) {
             const {id , patch} = action.payload
+            const shape = state.shapes.entities[id]
+            if(!shape) return
+            // Only save to history if this is a meaningful change (not just height updates)
+            const isSignificantChange = 'x' in patch || 'y' in patch || 'w' in patch || 'text' in patch || 'points' in patch || 'startX' in patch || 'startY' in patch || 'endX' in patch || 'endY' in patch
+            if(isSignificantChange) {
+                saveToHistoryHelper(state)
+            }
             shapesAdapter.updateOne(state.shapes , {id , changes  : patch})
         },
         removeShape(state , action : PayloadAction<string>) {
+            saveToHistoryHelper(state)
             const id = action.payload
-            const shape = state.shapes.entities[0]
+            const shape = state.shapes.entities[id]
             if(shape?.type === "frame"){
                 state.frameCounter = Math.max(0 , state.frameCounter - 1 )
             }
@@ -340,6 +389,7 @@ const shapesSlice = createSlice({
             delete state.selected[id]
         },
         clearAll (state) {
+            saveToHistoryHelper(state)
             shapesAdapter.removeAll(state.shapes)
             state.selected = {}
             state.frameCounter = 0
@@ -359,7 +409,10 @@ const shapesSlice = createSlice({
         },
         deleteSelected(state) {
             const ids = state.shapes.ids as string[]
-            if(ids.length) shapesAdapter.removeMany(state.shapes , ids)
+            if(ids.length) {
+                saveToHistoryHelper(state)
+                shapesAdapter.removeMany(state.shapes , ids)
+            }
             state.selected = {}
         },
         loadProject (state , action : PayloadAction<{
@@ -372,6 +425,8 @@ const shapesSlice = createSlice({
             state.tool = action.payload.tool,
             state.selected = action.payload.selected,
             state.frameCounter = action.payload.frameCounter
+            // Clear history when loading a new project
+            state.history = { past: [], future: [] }
         }
     }
 })
@@ -394,7 +449,9 @@ export const {
     removeShape,
     selectAll,
     selectShape,
-    updateShape
+    updateShape,
+    undo,
+    redo
 } = shapesSlice.actions
 
 export default shapesSlice.reducer

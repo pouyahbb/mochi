@@ -13,6 +13,7 @@ import { LinePreview } from './shapes/line/preview'
 import { StrokePreview } from './shapes/stroke/preview'
 import SelectionOverlay from './shapes/selection'
 import InspirationSidebar from './shapes/inspiration-sidebar'
+import ChatWindow from './shapes/generatedui/chat'
 
 const InfiniteCanvas = () => {
     const {
@@ -35,7 +36,7 @@ const InfiniteCanvas = () => {
 
     const {isInspirationOpen , closeInspiration , toggleInspiration} = useInspiration()
 
-    const {activeGeneratedUIId , generateWorkflow , isChatOpen , exportDesign , closeChat , openChat ,toggleChat } = useGlobalChat()
+    const {activeGeneratedUIId , generateWorkflow , isChatOpen , exportDesign , closeChat ,toggleChat } = useGlobalChat()
 
     const draftShape = getDraftShape()
     const freeDrawPoints = getFreeDrawPoints()

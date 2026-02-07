@@ -123,3 +123,34 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+}
+
+/* Prevent scrolling in generated UI - frames should expand instead */
+[data-generated-ui] {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+[data-generated-ui] * {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+/* Allow scrolling only in specific containers that need it (like chat windows) */
+[data-generated-ui] [class*="overflow-y-auto"],
+[data-generated-ui] [class*="overflow-auto"] {
+  overflow-y: auto !important;
+}

@@ -1,15 +1,14 @@
 "use client"
-import { addArrow, addEllipse, addFrame, addFreeDrawShape, addGeneratedUI, addLine, addRect, addText, clearSelection, FrameShape, removeShape, selectShape, setTool, Shape, Tool, updateShape } from "@/redux/slice/shapes"
+import { addArrow, addEllipse, addFrame, addFreeDrawShape, addGeneratedUI, addLine, addRect, addText, clearSelection, FrameShape, removeShape, selectShape, setTool, Shape, Tool, updateShape, undo, redo } from "@/redux/slice/shapes"
 import { handToolDisable, handToolEnable, panEnd, panMove, panStart, Point, screenToWorld, wheelPan, wheelZoom } from "@/redux/slice/viewport"
 import { AppDispatch, useAppDispatch, useAppSelector } from "@/redux/store"
 import { useDispatch } from "react-redux"
-import { useProjectCreation } from "./use-project"
 import React, { useEffect, useRef, useState } from "react"
 import { downloadBlob, exportGeneratedUIAsPNG, generateFrameSnapshot } from "@/lib/frame-snapshot"
 import { nanoid } from "@reduxjs/toolkit"
 import { toast } from "sonner"
 import { useGenerateWorkflowMutation } from "@/redux/api/generation"
-import { addUserMessage, initializeChat, startStreamingResponse } from "@/redux/slice/chat"
+import { addErrorMessage, addUserMessage, clearChat, finishStreamingResponse, initializeChat, startStreamingResponse, updateStreamingContent } from "@/redux/slice/chat"
 
 interface TouchPointer  {
     id : number
@@ -485,6 +484,18 @@ export const useInfiniteCanvas = () => {
         onPointerUp(e)
     }
     const onKeyDown = (e : KeyboardEvent) : void => {
+        // Undo/Redo shortcuts
+        if((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault()
+            dispatch(undo())
+            return
+        }
+        if((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+            e.preventDefault()
+            dispatch(redo())
+            return
+        }
+        // Shift for panning
         if(e.code === "ShiftLeft" || e.code === "ShiftRight" && !e.repeat){
             e.preventDefault()
             isSpacePressed.current = true
@@ -971,7 +982,7 @@ export const useChatWindow = (generatedUIId : string, isOpen : boolean) => {
     const scrollAreaRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
     const dispatch = useAppDispatch()
-    const chatState = useAppSelector(state => state.chat.chats[generatedUIId])
+    const chatState = useAppSelector(state => state.chat?.chats?.[generatedUIId])
     const currentShape = useAppSelector(state => state.shapes.shapes.entities[generatedUIId])
     const allShapes = useAppSelector(state => state.shapes.shapes.entities)
     const getSourceFrame= () : FrameShape | null => {
@@ -1027,7 +1038,7 @@ export const useChatWindow = (generatedUIId : string, isOpen : boolean) => {
             let apiEndpoint = "/api/generate/redesign"
             let wireframeSnapshot: string | null = null
             if(isWorkflowPage){
-                apiEndpoint = '/api/generate/workflow-design'
+                apiEndpoint = '/api/generate/workflow-redesign'
             }else{
                 const sourceFrame = getSourceFrame()
                 if(sourceFrame && sourceFrame.type === "frame"){
@@ -1054,9 +1065,45 @@ export const useChatWindow = (generatedUIId : string, isOpen : boolean) => {
             }
             const reader =response.body?.getReader()
             const decoder = new TextDecoder()
-            // should look 12:29:44
-        }catch(err){
+            let accumulatedData = ""
+            if(reader){
+                while(true){
+                    const {done, value} = await reader.read()
+                    if(done) break
+                    const chunk = decoder.decode(value)
+                    accumulatedData += chunk
+                    dispatch(updateStreamingContent({generatedUIId ,messageId : responseId , content : "Rendering your design..."}))
+                    dispatch(updateShape({
+                        id : generatedUIId,
+                        patch : {uiSpecData : accumulatedData}
+                    }))
+                }
+            }
+            dispatch(finishStreamingResponse({generatedUIId , messageId : responseId , finalContent : "Design regenerated successfully..."}))
 
+        }catch(err){
+            console.error("Failed to generate design" , err)
+            dispatch(addErrorMessage({generatedUIId , error  : err instanceof Error ? err.message : "Failed to generate design. Please try again."}))
+            toast.error("Failed to generate design.")
         }
+    }
+    const handleKeyPress = (e:React.KeyboardEvent) => {
+        if(e.key === "Enter" && !e.shiftKey){
+            e.preventDefault()
+            handleSendMessage()
+        }
+    }
+    const handleClearChat = () => {
+        dispatch(clearChat(generatedUIId))
+    }
+    return {
+        inputValue,
+        setInputValue,
+        scrollAreaRef,
+        inputRef,
+        handleSendMessage,
+        handleKeyPress,
+        handleClearChat,
+        chatState
     }
 }

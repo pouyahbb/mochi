@@ -26,90 +26,66 @@ export async function POST (request : NextRequest){
             } , {status : 500})
         }
         const styleGuide = await StyleGuideQuery(projectId)
-        const styleGuideData = styleGuide.styleGuide._valueJSON as unknown  as {
-            colorSections : unknown[],
-            typographySections : unknown[]
-        }
+        const styleGuideData = styleGuide?.styleGuide?._valueJSON as unknown as {
+            colorSections?: unknown[]
+            typographySections?: unknown[]
+        } | null | undefined
+
         const inpirationResult = await InspirationImagesQuery(projectId)
         const images = inpirationResult.images._valueJSON as unknown as {
             url : string
         }[]
         const imagesUrl = images.map(img => img.url).filter(Boolean)
-        const colors = styleGuideData?.colorSections || []
-        const typography = styleGuideData?.typographySections || []
+        const colors = (styleGuideData?.colorSections || []) as Array<{
+            swatches: Array<{ name: string; hexColor: string; description: string }>
+        }>
+        const typography = (styleGuideData?.typographySections || []) as Array<{
+            styles: Array<{ name: string; description: string; fontFamily: string; fontWeight: string; fontSize: string; lineHeight: string }>
+        }>
         
-        let userPrompt  = `Please redesign this UI based on my request : "${userMessage}"`
+        // Concise prompt — the system prompt already has the component library
+        let userPrompt = `REDESIGN REQUEST: "${userMessage}"
+
+MODIFY the existing HTML below — do NOT create a completely new page.
+Use COMPONENT LIBRARY pieces from the system prompt for any NEW elements you add.`
 
         if(currentHTML){
-            userPrompt += `\n\nCurrent HTML for refrences:\n${currentHTML.substring(0 , 1000)}...`
+            userPrompt += `\n\nCURRENT HTML TO MODIFY:\n${currentHTML.substring(0, 2000)}${currentHTML.length > 2000 ? '...' : ''}`
         }
 
         if(wireframeSnapshot){
-            userPrompt += `\n\nWireframe Context: I'm providing a wireframe image that shown the EXACT original design layout and structure that this UI was generated from.
-            This wireframe represents the specific frame that was use to create the current design.Please use this as visual context to understand the intended layout, structure , and design elements when making improvments.
-            The wireframe shows the original wireframe/mockup that the user drew or created.`
-            console.log("using wireframe context for regeneration")
-        }else{
-            console.log("No wireframe context available - using text-only regeneration")
+            userPrompt += `\n\nWIREFRAME CONTEXT: A wireframe image is provided showing the original layout structure. Use it as visual reference for maintaining layout understanding.`
         }
-        if(colors.length>0){
-            userPrompt+= `\n\nStyle Guide Colors: \n${(
-                colors as Array<{
-                    swatches : Array<{
-                        name : string
-                        hexColor : string
-                        description : string
-                    }>
-                }>
-            ).map(color => color.swatches.map(swatch => `${swatch.name}: ${swatch.hexColor}, ${swatch.description}`).join(", ")).join(", ")}`
+
+        if(colors.length > 0){
+            userPrompt += `\n\nCOLORS:\n${colors.map(color => color.swatches.map(swatch => `${swatch.name}: ${swatch.hexColor}`).join(", ")).join(", ")}`
         }
         if(typography.length > 0){
-            userPrompt += `\n\nTypography:\n${(
-                    typography as Array<{
-                        styles: Array<{
-                            name : string
-                            description : string
-                            fontFamily : string
-                            fontWeight : string
-                            fontSize : string
-                            lineHeight : string
-                        }>
-                    }>
-                ).map(typo => typo.styles.map(style => `${style.name}:${style.description}, ${style.fontFamily}, ${style.fontWeight}, ${style.fontSize}, ${style.lineHeight}`).join(", ")).join(", ")
-            }`
+            userPrompt += `\n\nTYPOGRAPHY:\n${typography.map(typo => typo.styles.map(style => `${style.name}: ${style.fontFamily} ${style.fontWeight} ${style.fontSize}`).join(", ")).join(", ")}`
         }
 
-        if(imagesUrl.length> 0){
-            userPrompt += `\n\nInpiration Images Available: ${imagesUrl.length} refrence images for visual style and inspiration`
+        const messageContent: Array<{type: "text"; text: string} | {type: "image"; image: string}> = [
+            { type: "text", text: userPrompt }
+        ]
+        
+        if(wireframeSnapshot){
+            messageContent.push({ type: "image", image: wireframeSnapshot })
         }
-        userPrompt += `\n\nPlease generate a completely new HTML design based on my request while following the style guide, maintaining professional quality,
-        and considerating the wireframe context for layout understanding`
-
-
+        
+        for(const url of imagesUrl){
+            messageContent.push({ type: "image", image: url })
+        }
 
         const result = streamText({
-            model: anthropic("claude-opus-4-20250514"),
-            messages  : [
+            model: anthropic("claude-sonnet-4-20250514"),
+            messages: [
                 {
-                    role : "user",
-                    content : [
-                        {
-                            type : "text",
-                            text : userPrompt
-                        },
-                        {
-                            type : "image",
-                            image : wireframeSnapshot
-                        },
-                        ...imagesUrl.map(url => ({
-                            type : "image" as const,
-                            image :url
-                        }))
-                    ]
+                    role: "user",
+                    content: messageContent
                 }
             ],
-            system : prompts.generativeUi.system,
-            temperature : 0.7
+            system: prompts.redesign.system,
+            temperature: 0.5
         })
 
         const stream = new ReadableStream({
@@ -128,14 +104,14 @@ export async function POST (request : NextRequest){
         return new Response(stream,{
             headers : {
                 'Content-Type': 'text/html; charset=utf-8',
-                "Cache-Controll" : "no-cache",
+                "Cache-Control" : "no-cache",
                 Connection : "keep-alive"
             }
         })
     }catch(err){
-        console.error("Workflow generation API error " , err)
+        console.error("Redesign API error" , err)
         return NextResponse.json({
-            error : "Failed to process workflow generation request",
+            error : "Failed to process redesign request",
             details : err instanceof Error ? err.message : "Unknown error"
         } , {
             status : 500

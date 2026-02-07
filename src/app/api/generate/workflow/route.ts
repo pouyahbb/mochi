@@ -26,92 +26,65 @@ export async function POST (request : NextRequest){
             } , {status : 500})
         }
         const styleGuide = await StyleGuideQuery(projectId)
-        const styleGuideData = styleGuide.styleGuide._valueJSON as unknown  as {
-            colorSections : unknown[],
-            typographySections : unknown[]
-        }
+        const styleGuideData = styleGuide?.styleGuide?._valueJSON as unknown as {
+            colorSections?: unknown[]
+            typographySections?: unknown[]
+        } | null | undefined
+
         const inpirationResult = await InspirationImagesQuery(projectId)
         const images = inpirationResult.images._valueJSON as unknown as {
             url : string
         }[]
         const imagesUrl = images.map(img => img.url).filter(Boolean)
-        const colors = styleGuideData?.colorSections || []
-        const typography = styleGuideData?.typographySections || []
+        const colors = (styleGuideData?.colorSections || []) as Array<{
+            swatches: Array<{ name: string; hexColor: string; description: string }>
+        }>
+        const typography = (styleGuideData?.typographySections || []) as Array<{
+            styles: Array<{ name: string; description: string; fontFamily: string; fontWeight: string; fontSize: string; lineHeight: string }>
+        }>
+
         const pageTypes = [
-            "Dashboard/Analytics page with charts, metrics , and KPIs",
+            "Dashboard/Analytics page with charts, metrics, and KPIs",
             "Settings/Configuration page with preferences and account management",
             "User Profile page with personal information and activity",
-            "Data Listing/Table page with search, filters , and pagination"
+            "Data Listing/Table page with search, filters, and pagination"
+        ]
+        const templateHints = [
+            "Use the DASHBOARD template from the template library as your base",
+            "Use the SETTINGS PAGE template from the template library as your base",
+            "Use the PROFILE PAGE template from the template library as your base",
+            "Use the DATA LISTING template from the template library as your base"
         ]
         const selectedPageType = pageTypes[pageIndex] || pageTypes[0]
-        let userPrompt  = `You are tasked with creating a workflow page that complements the provided main page design.
-            MAIN PAGE PREFERENCE (for design consistency):
-            ${currentHTML.substring(0 , 2000)}...
-            WORKFLOW PAGE TO GENERATE : 
-            Create a "${selectedPageType}" that would logically complement the main page shown above.
-            DYNAMIC PAGE REQUIREMENTS : 
-            1. Analyze the main page design and determine what type of the application this appears to be 
-            2. Based on the analysis , create a fitting ${selectedPageType} that would make sense in this application context 
-            3. The page should feel like a natural extension of the main page's functionality
-            4. Use your best judgment to determine appropriate content, features , and layout for this page type 
+        const selectedTemplateHint = templateHints[pageIndex] || templateHints[0]
 
-            DESIGN CONSISTENCY REQUIREMENTS:
-            1. Use the EXACT same visual style , color schema, and typography as the main page
-            2. Maintain identical component style (buttons , card , form , navigation , etc)
-            3. Keep the same overall layout structure and spacing patterns
-            4. Use similar UI patterns and components hirerachy
-            5. Ensure the page feels like it belong to the same application - perfect visual consistency
+        let userPrompt = `Create a "${selectedPageType}" workflow page that complements the main page design.
 
-            TECHNICAL REQUIREMENTS:
-            1. Generate clean, semantic HTML with Tailwind CSS classes matching the main page
-            2. Use similar shadcn/ui component patterns as shown in the main page
-            3. Include responsive design considerations
-            4. Add proper accessibility attributes (aria-labels , semantic HTML)
-            5. Create a functional , production-ready page layout
-            6. Include realistic content and data that fits the page type and application context
+${selectedTemplateHint}. Customize the template slots with contextually appropriate content.
 
-            CONTENT GUIDELINES:
-            - Generate realistic, contexually appropriate content(don't use Lorem Inpsum)
-            - Create functional UI elements appropriate for the page type 
-            - Include proper navigation elements if they exist in the main page
-            - Add interactive elements like buttons, forms, tables, etc. as appropriate for the page type 
+MAIN PAGE DESIGN (for style consistency — copy the exact <style> block):
+${currentHTML.substring(0, 1500)}${currentHTML.length > 1500 ? '...' : ''}
 
-            Please generate a complete, professional HTML page that serves as a ${selectedPageType} while maintaining perfect visual and functional consistency with the main design.
-        `
-        if(colors.length>0){
-            userPrompt+= `\n\nStyle Guide Colors: \n${(
-                colors as Array<{
-                    swatches : Array<{
-                        name : string
-                        hexColor : string
-                        description : string
-                    }>
-                }>
-            ).map(color => color.swatches.map(swatch => `${swatch.name}: ${swatch.hexColor}, ${swatch.description}`).join(", ")).join(", ")}`
+REQUIREMENTS:
+1. Use the EXACT same visual style, color scheme, and <style> block as the main page
+2. Pick the recommended template and fill all {{placeholder}} slots
+3. Use COMPONENT LIBRARY pieces for cards, tables, buttons, forms, etc.
+4. Generate realistic content that fits the page type and application context
+5. Maintain identical component styles (buttons, cards, forms, navigation)
+`
+
+        if(colors.length > 0){
+            userPrompt += `\n\nCOLORS:\n${colors.map(color => color.swatches.map(swatch => `${swatch.name}: ${swatch.hexColor}`).join(", ")).join(", ")}`
         }
         if(typography.length > 0){
-            userPrompt += `\n\nTypography:\n${(
-                    typography as Array<{
-                        styles: Array<{
-                            name : string
-                            description : string
-                            fontFamily : string
-                            fontWeight : string
-                            fontSize : string
-                            lineHeight : string
-                        }>
-                    }>
-                ).map(typo => typo.styles.map(style => `${style.name}:${style.description}, ${style.fontFamily}, ${style.fontWeight}, ${style.fontSize}, ${style.lineHeight}`).join(", ")).join(", ")
-            }`
+            userPrompt += `\n\nTYPOGRAPHY:\n${typography.map(typo => typo.styles.map(style => `${style.name}: ${style.fontFamily} ${style.fontWeight} ${style.fontSize}`).join(", ")).join(", ")}`
         }
-
-        if(imagesUrl.length> 0){
-            userPrompt += `\n\nInpiration Images Available: ${imagesUrl.length} refrence images for visual style and inspiration`
+        if(imagesUrl.length > 0){
+            userPrompt += `\n\nINSPIRATION: ${imagesUrl.length} reference images available for visual style.`
         }
-        userPrompt += `\n\nPlease generate a professional ${selectedPageType} that maintains complete design consistancy with the main page while serving its specific functional purpose. Be creative and contextually appropriate!`
 
         const result = streamText({
-            model: anthropic("claude-opus-4-20250514"),
+            model: anthropic("claude-sonnet-4-20250514"),
             messages  : [
                 {
                     role : "user",
@@ -120,7 +93,6 @@ export async function POST (request : NextRequest){
                             type : "text",
                             text : userPrompt
                         },
-                        
                         ...imagesUrl.map(url => ({
                             type : "image" as const,
                             image : url
@@ -128,8 +100,8 @@ export async function POST (request : NextRequest){
                     ]
                 }
             ],
-            system : prompts.generativeUi.system,
-            temperature : 0.7
+            system : prompts.workflow?.system || prompts.generativeUi.system,
+            temperature : 0.5
         })
 
         const stream = new ReadableStream({
@@ -148,7 +120,7 @@ export async function POST (request : NextRequest){
         return new Response(stream,{
             headers : {
                 'Content-Type': 'text/html; charset=utf-8',
-                "Cache-Controll" : "no-cache",
+                "Cache-Control" : "no-cache",
                 Connection : "keep-alive"
             }
         })

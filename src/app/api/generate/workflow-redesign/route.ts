@@ -1,4 +1,4 @@
-import { ConsumeCreditsQuery, CreditBalanceQuery, InspirationImagesQuery, StyleGuideQuery } from "@/convex/query.config";
+import { ConsumeCreditsQuery, CreditBalanceQuery, StyleGuideQuery } from "@/convex/query.config";
 import { prompts } from "@/prompts";
 import { streamText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -26,51 +26,38 @@ export async function POST (request : NextRequest){
             } , {status : 500})
         }
         const styleGuide = await StyleGuideQuery(projectId)
-        const styleGuideData = styleGuide.styleGuide._valueJSON as unknown  as {
-            colorSections : unknown[],
-            typographySections : unknown[]
-        }
+        const styleGuideData = styleGuide?.styleGuide?._valueJSON as unknown as {
+            colorSections?: unknown[]
+            typographySections?: unknown[]
+        } | null | undefined
+        const colors = (styleGuideData?.colorSections || []) as Array<{
+            swatches: Array<{ name: string; hexColor: string; description: string }>
+        }>
+        const typography = (styleGuideData?.typographySections || []) as Array<{
+            styles: Array<{ name: string; description: string; fontFamily: string; fontWeight: string; fontSize: string; lineHeight: string }>
+        }>
         
-        let userPrompt  = `CRITICAL : You are redesigner a SPECIFIC WORKFLOW PAGE, not creating a new page from scratch
-        USER REQUEST : "${userMessage}
+        // Concise prompt — component library is in the system prompt
+        let userPrompt = `REDESIGN this workflow page based on user request: "${userMessage}"
 
-        CURRENT WORKFLOW PAGE HTML TO REDESIGN:
-        1. MODIFY THE PROVIDED HTML ABOVE - do not create completely new page
-        2. Apply the user's requested changes to the exisiting workflow page
-        3. Keep the same page type and core structure and component hirerachy
-        4. Maintain all functional elements while applying visual/content changes
-        5. Keet the same general organization and workflow purpose
+MODIFY the provided HTML — do NOT create a completely different page.
+Use COMPONENT LIBRARY pieces for any NEW elements you add.
+Keep existing IDs, structure, and .c-* color system.
 
-        MODIFICATION GUIDELINES : 
-        1. Start with the provided HTML structure as your base
-        2. Apply the requested changes (colors, layout, content , styling, etc.)
-        3. Keep all exisiting IDs and semantic structure intact
-        4. Maintain shadcn/ui component patterns and classes
-        5. Preserve responsive design and accessibility features
-        6. Update content, styling, or layout as requested but keep core structure
+CURRENT WORKFLOW HTML TO MODIFY:
+${currentHTML.substring(0, 2000)}${currentHTML.length > 2000 ? '...' : ''}`
 
-        IMPORTANT:
-        - DO NOT generate a completely diffrent page
-        - DO NOT revert to any "original" or "main" page design
-        - DO redesign the specific workflow page shown in the HTML above
-        - DO apply the user's change to that specific page
+        if(colors.length > 0){
+            userPrompt += `\n\nCOLORS:\n${colors.map(color => color.swatches.map(swatch => `${swatch.name}: ${swatch.hexColor}`).join(", ")).join(", ")}`
+        }
+        if(typography.length > 0){
+            userPrompt += `\n\nTYPOGRAPHY:\n${typography.map(typo => typo.styles.map(style => `${style.name}: ${style.fontFamily} ${style.fontWeight} ${style.fontSize}`).join(", ")).join(", ")}`
+        }
 
-
-        colors : ${styleGuideData.colorSections.map((color:any) => color.swatches.map((swatch:any) => {
-            return `${swatch.name}: ${swatch.hexColor}, ${swatch.description}`
-        }).join(", ")).join(", ")}
-        typography: ${styleGuideData.typographySections.map((typo:any) => typo.styles.map((style:any) => {
-            return `${style.name}: ${style.description}, ${style.fontFamily}, ${style.fontWeight}, ${style.fontSize}, ${style.lineHeight}`
-        }).join(", ")).join(", ")}
-
-        Please generate the modified version of the provided workflow page HTML with the requested changes applied.
-        `
-
-        userPrompt += `\n\nPlease generate a professional redesigned workflow page that incorporates the requested changes while maintaining the core functionality and design consistency.`
-
+        userPrompt += `\n\nGenerate the modified workflow page HTML with the requested changes applied.`
 
         const result = streamText({
-            model: anthropic("claude-opus-4-20250514"),
+            model: anthropic("claude-sonnet-4-20250514"),
             messages  : [
                 {
                     role : "user",
@@ -82,8 +69,8 @@ export async function POST (request : NextRequest){
                     ]
                 }
             ],
-            system : prompts.generativeUi.system,
-            temperature : 0.7
+            system : prompts.redesign.system,
+            temperature : 0.5
         })
 
         const stream = new ReadableStream({
@@ -102,14 +89,14 @@ export async function POST (request : NextRequest){
         return new Response(stream,{
             headers : {
                 'Content-Type': 'text/html; charset=utf-8',
-                "Cache-Controll" : "no-cache",
+                "Cache-Control" : "no-cache",
                 Connection : "keep-alive"
             }
         })
     }catch(err){
-        console.error("Workflow generation API error " , err)
+        console.error("Workflow redesign API error" , err)
         return NextResponse.json({
-            error : "Failed to process workflow generation request",
+            error : "Failed to process workflow redesign request",
             details : err instanceof Error ? err.message : "Unknown error"
         } , {
             status : 500

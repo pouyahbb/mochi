@@ -8,6 +8,10 @@ const ProtectedMatcher = createRouteMatcher(isProtectedRoutes)
 export default convexAuthNextjsMiddleware(async(request , {convexAuth}) => {
     if(ByPassMatcher(request)) return
     const authed = await convexAuth.isAuthenticated()
+    // Allow home page to be accessible even if authenticated
+    if(request.nextUrl.pathname === "/"){
+        return
+    }
     if(PublicMatcher(request) && authed){
         return nextjsMiddlewareRedirect(request , "/dashboard")
     }
