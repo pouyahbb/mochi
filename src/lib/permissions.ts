@@ -5,6 +5,6 @@ export const isBypassRoutes = [
     "/convex(.*)"
 ]
 
-export const isPublicRoutes = ["/auth(.*)"]
+export const isPublicRoutes = ["/auth(.*)", "/pricing"]
 
-export const isProtectedRoutes = ["/dashboard(.*)"]
+export const isProtectedRoutes = ["/dashboard(.*)", "/billing(.*)"]

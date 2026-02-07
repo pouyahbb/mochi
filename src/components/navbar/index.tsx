@@ -39,7 +39,7 @@ const Navbar = () => {
     const hasCanvas = pathname.includes("canvas")
     const hasStyleGuide = pathname.includes("style-guide")
 
-    const me = useAppSelector(state => state.profile.user)
+    const me = useAppSelector(state => state.profile)
 
     const creditBalance = useQuery(api.subscription.getCreditBalance , me?.id ? { userId: me.id as Id<"users"> } : "skip")
 
@@ -124,7 +124,7 @@ const Navbar = () => {
                                 </Avatar>
                             </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56 backdrop-blur-xl bg-white/95 border border-white/20 shadow-xl">
+                        <DropdownMenuContent align="end" className="w-56 backdrop-blur-xl  border border-white/20 shadow-xl">
                             <DropdownMenuLabel className="font-normal">
                                 <div className="flex flex-col space-y-1">
                                     <p className="text-sm font-medium leading-none text-foreground">{me.name || "User"}</p>

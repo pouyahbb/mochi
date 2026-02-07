@@ -1,25 +1,19 @@
 "use client"
 
 import Link from "next/link"
+import { ArrowRight, Sparkles, Zap, Shield, Users, Code, CheckCircle2, Palette, Download, Workflow, MessageCircle, Layers, Wand2, FileCode, Image as ImageIcon, Github, Twitter, Linkedin } from "lucide-react"
+import { useConvexAuth } from "convex/react"
 import { useRouter } from "next/navigation"
-import { ArrowRight, Sparkles, CheckCircle2, Palette, Download, Workflow, MessageCircle, Layout, Wand2, FileCode, Image as ImageIcon, Layers } from "lucide-react"
-import { useAppSelector } from "@/redux/store"
-import { combineSlug } from "@/lib/utils"
 
 export default function Home() {
+  const { isAuthenticated } = useConvexAuth()
   const router = useRouter()
-  const profile = useAppSelector(state => state.profile.user)
-  const isAuthenticated = !!profile
 
-  const handleDashboardClick = () => {
-    if(profile?.name) {
-      router.push(`/dashboard/${combineSlug(profile.name)}`)
-    }
-  }
-
-  const handleUpgradeClick = () => {
-    if(profile?.name) {
-      router.push(`/billing/${combineSlug(profile.name)}`)
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      router.push("/dashboard")
+    } else {
+      router.push("/auth/sign-up")
     }
   }
 
@@ -47,36 +41,28 @@ export default function Home() {
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <>
-                <button
-                  onClick={handleUpgradeClick}
+                <Link
+                  href="/dashboard"
                   className="text-sm font-medium text-foreground hover:text-muted-foreground transition"
-                >
-                  Upgrade
-                </button>
-                <button
-                  onClick={handleDashboardClick}
-                  className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
                 >
                   Dashboard
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/auth/sign-in"
-                  className="text-sm font-medium text-foreground hover:text-muted-foreground transition"
-                >
-                  Sign In
                 </Link>
-                <Link
-                  href="/auth/sign-up"
+                <button
+                  onClick={handleGetStarted}
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
                 >
                   Get Started
                   <ArrowRight className="w-4 h-4" />
-                </Link>
+                </button>
               </>
+            ) : (
+              <button
+                onClick={handleGetStarted}
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
+              >
+                Get Started
+                <ArrowRight className="w-4 h-4" />
+              </button>
             )}
           </div>
         </div>
@@ -98,23 +84,13 @@ export default function Home() {
               Create production-ready designs from simple sketches. Our AI understands your vision and generates pixel-perfect interfaces using shadcn components and modern design patterns.
             </p>
             <div className="flex items-center gap-4 pt-4">
-              {isAuthenticated ? (
-                <button
-                  onClick={handleDashboardClick}
-                  className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-4 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
-                >
-                  Go to Dashboard
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              ) : (
-                <Link
-                  href="/auth/sign-up"
-                  className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-4 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
-                >
-                  Start Creating
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              )}
+              <Link
+                href="/auth/sign-up"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-4 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
+              >
+                Start Creating
+                <ArrowRight className="w-4 h-4" />
+              </Link>
               <Link
                 href="#how-it-works"
                 className="inline-flex items-center justify-center gap-2 rounded-md border bg-background px-6 py-3 text-sm font-medium hover:bg-accent transition"
@@ -139,7 +115,7 @@ export default function Home() {
           </div>
           <div className="relative">
             <div className="aspect-video rounded-xl overflow-hidden border bg-muted shadow-2xl">
-              <div className="w-full h-full bg-linear-to-b from-primary/20 via-background to-secondary/20 flex items-center justify-center">
+              <div className="w-full h-full bg-linear-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center">
                 <div className="text-center space-y-4 p-8">
                   <div className="w-16 h-16 mx-auto rounded-lg bg-primary/20 flex items-center justify-center">
                     <Sparkles className="w-8 h-8 text-primary" />
@@ -153,10 +129,14 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 px-6 bg-muted/30">
+      <section id="features" className="py-24 px-6 bg-linear-to-b from-background via-muted/20 to-background">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl md:text-4xl font-semibold text-foreground">
+            <div className="inline-flex items-center gap-2 rounded-full border bg-primary/10 border-primary/20 px-4 py-1.5 text-sm text-primary mb-4">
+              <Sparkles className="w-4 h-4" />
+              <span>Powerful Features</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               Everything You Need to Design Faster
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -164,85 +144,85 @@ export default function Home() {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="rounded-xl border bg-card p-6 space-y-4 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Wand2 className="w-6 h-6 text-primary" />
+            <div className="group rounded-xl border bg-card/50 backdrop-blur-sm p-6 space-y-4 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Zap className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">AI-Powered Generation</h3>
-              <p className="text-muted-foreground">
-                Transform your wireframes into production-ready UI designs in seconds. Our advanced AI understands your style guide and generates pixel-perfect interfaces that match your brand.
+              <h3 className="text-xl font-semibold text-foreground">Lightning Fast Generation</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Generate complete UI designs in seconds. No more hours of manual work—just sketch your wireframe and watch AI transform it into production-ready code instantly.
               </p>
             </div>
-            <div className="rounded-xl border bg-card p-6 space-y-4 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Palette className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Smart Style Guide</h3>
-              <p className="text-muted-foreground">
-                Upload images to your mood board and automatically generate comprehensive style guides with colors, typography, and design tokens extracted from your inspiration.
-              </p>
-            </div>
-            <div className="rounded-xl border bg-card p-6 space-y-4 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FileCode className="w-6 h-6 text-primary" />
+            <div className="group rounded-xl border bg-card/50 backdrop-blur-sm p-6 space-y-4 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Code className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-xl font-semibold text-foreground">Production-Ready Code</h3>
-              <p className="text-muted-foreground">
-                Get clean, semantic HTML with shadcn/ui components. Copy-paste ready code that follows best practices and modern design patterns.
+              <p className="text-muted-foreground leading-relaxed">
+                Get clean, semantic HTML with shadcn/ui components. Copy-paste ready code that follows best practices, accessibility standards, and modern design patterns.
               </p>
             </div>
-            <div className="rounded-xl border bg-card p-6 space-y-4 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+            <div className="group rounded-xl border bg-card/50 backdrop-blur-sm p-6 space-y-4 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Palette className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">AI Style Guide Generator</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Upload inspiration images and generate comprehensive style guides. AI automatically extracts colors, typography, and design tokens to maintain brand consistency.
+              </p>
+            </div>
+            <div className="group rounded-xl border bg-card/50 backdrop-blur-sm p-6 space-y-4 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Wand2 className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Smart AI Redesign</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Chat with AI to redesign your UI in real-time. Change colors, layouts, content, and styling with simple text commands. No coding required.
+              </p>
+            </div>
+            <div className="group rounded-xl border bg-card/50 backdrop-blur-sm p-6 space-y-4 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Workflow className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Workflow Pages</h3>
-              <p className="text-muted-foreground">
-                Generate complete workflow pages—dashboards, settings, profiles, and data listings—that perfectly complement your main design with consistent styling.
+              <h3 className="text-xl font-semibold text-foreground">Workflow Page Generation</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Generate complete workflow pages—dashboards, settings, profiles, data tables—that perfectly complement your main design with consistent styling.
               </p>
             </div>
-            <div className="rounded-xl border bg-card p-6 space-y-4 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <MessageCircle className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Interactive Redesign</h3>
-              <p className="text-muted-foreground">
-                Chat with AI to redesign your UI in real-time. Request color changes, layout adjustments, content updates, and more—all through natural conversation.
-              </p>
-            </div>
-            <div className="rounded-xl border bg-card p-6 space-y-4 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+            <div className="group rounded-xl border bg-card/50 backdrop-blur-sm p-6 space-y-4 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Download className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-xl font-semibold text-foreground">Export & Deploy</h3>
-              <p className="text-muted-foreground">
-                Export your designs as high-quality PNG images or copy the HTML code directly. Ready to use in your projects immediately.
+              <p className="text-muted-foreground leading-relaxed">
+                Export your designs as high-quality PNG images or copy the HTML code. Ready to use in your projects immediately with zero additional setup.
               </p>
             </div>
-            <div className="rounded-xl border bg-card p-6 space-y-4 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Layout className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Infinite Canvas</h3>
-              <p className="text-muted-foreground">
-                Draw wireframes on an infinite canvas with powerful tools. Create frames, shapes, arrows, and text with precision and ease.
-              </p>
-            </div>
-            <div className="rounded-xl border bg-card p-6 space-y-4 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <ImageIcon className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Mood Board</h3>
-              <p className="text-muted-foreground">
-                Build your inspiration collection with an integrated mood board. Upload images that guide your style guide generation and design aesthetic.
-              </p>
-            </div>
-            <div className="rounded-xl border bg-card p-6 space-y-4 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+            <div className="group rounded-xl border bg-card/50 backdrop-blur-sm p-6 space-y-4 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Layers className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Component Library</h3>
-              <p className="text-muted-foreground">
-                Leverage pre-built shadcn/ui components and templates to reduce AI costs while maintaining design consistency and quality.
+              <h3 className="text-xl font-semibold text-foreground">Infinite Canvas</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Draw wireframes on an infinite canvas with powerful tools. Create frames, shapes, arrows, and text with precision. Pan, zoom, and organize your designs effortlessly.
+              </p>
+            </div>
+            <div className="group rounded-xl border bg-card/50 backdrop-blur-sm p-6 space-y-4 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <MessageCircle className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Interactive Design Chat</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Have a conversation with AI about your designs. Ask for changes, improvements, or new variations. AI understands context and maintains design consistency.
+              </p>
+            </div>
+            <div className="group rounded-xl border bg-card/50 backdrop-blur-sm p-6 space-y-4 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <FileCode className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">shadcn/ui Integration</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Built on shadcn/ui components and pre-built templates. Reduce AI costs while maintaining high-quality, consistent designs that follow modern UI patterns.
               </p>
             </div>
           </div>
@@ -250,173 +230,198 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-24 px-6">
+      <section id="how-it-works" className="py-24 px-6 bg-linear-to-b from-background to-muted/10">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl md:text-4xl font-semibold text-foreground">
+            <div className="inline-flex items-center gap-2 rounded-full border bg-primary/10 border-primary/20 px-4 py-1.5 text-sm text-primary mb-4">
+              <Sparkles className="w-4 h-4" />
+              <span>Simple Process</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               How It Works
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Three simple steps to transform your ideas into beautiful, production-ready designs.
+              Transform your ideas into beautiful designs in three simple steps. No design experience required.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="text-center space-y-6">
-              <div className="relative">
-                <div className="w-20 h-20 mx-auto rounded-full bg-linear-to-b from-primary/20 to-primary/10 flex items-center justify-center text-3xl font-bold text-primary border-2 border-primary/20">
-                  1
-                </div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                  <Palette className="w-3 h-3 text-primary-foreground" />
-                </div>
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            <div className="relative text-center space-y-6">
+              <div className="absolute -left-4 top-8 hidden md:block">
+                <ArrowRight className="w-8 h-8 text-muted-foreground/30" />
+              </div>
+              <div className="w-20 h-20 mx-auto rounded-2xl bg-linear-to-br from-primary to-primary/60 flex items-center justify-center text-3xl font-bold text-primary-foreground shadow-lg">
+                1
               </div>
               <div className="space-y-3">
-                <h3 className="text-2xl font-semibold text-foreground">Build Your Style Guide</h3>
+                <h3 className="text-2xl font-bold text-foreground">Create Your Style Guide</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Start by uploading inspiration images to your mood board. Our AI analyzes your visual style and automatically generates a comprehensive style guide with color palettes, typography scales, and design tokens that capture your aesthetic.
+                  Upload inspiration images to your mood board. Our AI analyzes the visual style and automatically generates a comprehensive style guide with color palettes, typography scales, and design tokens that match your aesthetic.
                 </p>
               </div>
-              <div className="pt-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm text-muted-foreground">
-                  <ImageIcon className="w-4 h-4" />
-                  <span>Upload Images</span>
-                </div>
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <ImageIcon className="w-4 h-4" />
+                <span>Upload Images</span>
+                <span>→</span>
+                <Palette className="w-4 h-4" />
+                <span>Get Style Guide</span>
+              </div>
+            </div>
+            <div className="relative text-center space-y-6">
+              <div className="absolute -left-4 top-8 hidden md:block">
+                <ArrowRight className="w-8 h-8 text-muted-foreground/30" />
+              </div>
+              <div className="w-20 h-20 mx-auto rounded-2xl bg-linear-to-br from-primary to-primary/60 flex items-center justify-center text-3xl font-bold text-primary-foreground shadow-lg">
+                2
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-2xl font-bold text-foreground">Sketch Your Wireframe</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Use our infinite canvas to draw your wireframe. Create frames, add shapes, arrows, and text. Then click "Generate Design" and watch as AI transforms your sketch into a beautiful, production-ready UI that follows your style guide.
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Layers className="w-4 h-4" />
+                <span>Draw Wireframe</span>
+                <span>→</span>
+                <Wand2 className="w-4 h-4" />
+                <span>AI Generates UI</span>
               </div>
             </div>
             <div className="text-center space-y-6">
-              <div className="relative">
-                <div className="w-20 h-20 mx-auto rounded-full bg-linear-to-b from-primary/20 to-primary/10 flex items-center justify-center text-3xl font-bold text-primary border-2 border-primary/20">
-                  2
-                </div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                  <Wand2 className="w-3 h-3 text-primary-foreground" />
-                </div>
+                <div className="w-20 h-20 mx-auto rounded-2xl bg-linear-to-br from-primary to-primary/60 flex items-center justify-center text-3xl font-bold text-primary-foreground shadow-lg">
+                3
               </div>
               <div className="space-y-3">
-                <h3 className="text-2xl font-semibold text-foreground">Sketch & Generate</h3>
+                <h3 className="text-2xl font-bold text-foreground">Refine & Export</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Draw your wireframe on the infinite canvas using our intuitive drawing tools. Create frames, shapes, and annotations. Then, with a single click, watch as AI transforms your sketch into a fully functional, production-ready UI design that follows your style guide.
+                  Chat with AI to refine your design, generate workflow pages, or make changes. When you're happy, export as PNG or copy the HTML code. Your design is ready to use in your project immediately.
                 </p>
               </div>
-              <div className="pt-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm text-muted-foreground">
-                  <Layout className="w-4 h-4" />
-                  <span>Draw Wireframe</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-center space-y-6">
-              <div className="relative">
-                <div className="w-20 h-20 mx-auto rounded-full bg-linear-to-b from-primary/20 to-primary/10 flex items-center justify-center text-3xl font-bold text-primary border-2 border-primary/20">
-                  3
-                </div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                  <Download className="w-3 h-3 text-primary-foreground" />
-                </div>
-              </div>
-              <div className="space-y-3">
-                <h3 className="text-2xl font-semibold text-foreground">Refine & Export</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Use the interactive chat to refine your design—change colors, adjust layouts, update content, or generate workflow pages. When you&apos;re ready, export as PNG or copy the clean HTML code directly into your project.
-                </p>
-              </div>
-              <div className="pt-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm text-muted-foreground">
-                  <FileCode className="w-4 h-4" />
-                  <span>Export Code</span>
-                </div>
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <MessageCircle className="w-4 h-4" />
+                <span>Refine Design</span>
+                <span>→</span>
+                <Download className="w-4 h-4" />
+                <span>Export & Deploy</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* CTA Section */}
+      <section id="cta-section" className="py-24 px-6  relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/10 mask-[linear-gradient(0deg,white,transparent)]" />
+        <div className="absolute inset-0 bg-linear-to-t from-primary via-transparent to-transparent opacity-50" />
+        <div className="max-w-3xl mx-auto text-center space-y-6 relative z-10">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-blue-foreground/10 border-blue-foreground/20 px-4 py-1.5 text-sm text-white mb-4">
+            <Sparkles className="w-4 h-4" />
+            <span>Start Creating Today</span>
+        </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white">
+            Ready to Transform Your Design Workflow?
+          </h2>
+          <p className="text-lg text-blue-foreground/90 max-w-2xl mx-auto">
+            Join thousands of designers and developers creating beautiful UIs faster than ever. No credit card required to get started.
+          </p>
+          <div className="flex items-center justify-center gap-4 pt-4">
+            <button
+              onClick={handleGetStarted}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary-foreground px-8 py-4 text-sm font-medium text-white hover:opacity-90 hover:scale-105 transition-all shadow-lg"
+            >
+              Get Started Free
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <Link
+              href="#pricing"
+              className="inline-flex items-center justify-center gap-2 rounded-md border-2 border-blue-foreground/30 px-6 py-3 text-sm font-medium text-blue-foreground hover:bg-primary-foreground/10 transition"
+            >
+              View Pricing
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 px-6 bg-muted/30">
+      <section id="pricing" className="py-24 px-6 bg-linear-to-b from-background to-muted/10">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl md:text-4xl font-semibold text-foreground">
-              Simple, Transparent Pricing
+            <div className="inline-flex items-center gap-2 rounded-full border bg-primary/10 border-primary/20 px-4 py-1.5 text-sm text-primary mb-4">
+              <Sparkles className="w-4 h-4" />
+              <span>Simple Pricing</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Choose Your Plan
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              One plan. Unlimited creativity. No hidden fees.
+              Start free and upgrade when you're ready. All plans include access to all features.
             </p>
           </div>
           <div className="flex justify-center">
             <div className="w-full max-w-lg">
-              <div className="rounded-xl border bg-card p-8 shadow-xl">
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-r from-primary to-primary/60 rounded-full mb-4 shadow-lg">
+              <div className="rounded-xl border-2 border-primary/20 bg-card/50 backdrop-blur-sm p-8 shadow-xl">
+                <div className="text-center mb-6">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-r from-primary to-primary/60 rounded-full mb-4 shadow-lg">
                     <Sparkles className="w-8 h-8 text-primary-foreground" />
                   </div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-medium text-primary mb-3">
                     Most Popular
                   </div>
-                  <h3 className="text-3xl font-bold text-foreground mb-2">Standard Plan</h3>
-                  <div className="flex items-baseline justify-center gap-2 mb-4">
+                  <h3 className="text-2xl font-bold text-foreground mb-2">Standard Plan</h3>
+                  <div className="flex items-baseline justify-center gap-2 mb-2">
                     <span className="text-5xl font-bold text-foreground">$9.99</span>
-                    <span className="text-muted-foreground text-lg">/month</span>
+                    <span className="text-muted-foreground">/month</span>
                   </div>
-                  <p className="text-muted-foreground">
-                    Get 10 credits every month to power your AI-assisted design workflow
+                  <p className="text-muted-foreground text-sm">
+                    10 credits per month • Perfect for freelancers and creators
                   </p>
                 </div>
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border">
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                     <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-medium text-foreground">10 Monthly Credits</p>
-                      <p className="text-sm text-muted-foreground">Each credit = one AI task (generation, export, redesign)</p>
+                      <p className="font-medium text-foreground text-sm">10 Monthly Credits</p>
+                      <p className="text-xs text-muted-foreground">One credit = one AI task</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                     <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-medium text-foreground">AI-Powered Design Generation</p>
-                      <p className="text-sm text-muted-foreground">Transform wireframes into production-ready code</p>
+                      <p className="font-medium text-foreground text-sm">AI Design Generation</p>
+                      <p className="text-xs text-muted-foreground">Transform wireframes into production-ready UIs</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                     <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-medium text-foreground">Premium Assets Export</p>
-                      <p className="text-sm text-muted-foreground">High-quality PNG exports and HTML code</p>
+                      <p className="font-medium text-foreground text-sm">Style Guide Generator</p>
+                      <p className="text-xs text-muted-foreground">Auto-extract colors and typography from images</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                     <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-medium text-foreground">Interactive Redesign Chat</p>
-                      <p className="text-sm text-muted-foreground">Real-time AI-powered design modifications</p>
+                      <p className="font-medium text-foreground text-sm">Workflow Page Generation</p>
+                      <p className="text-xs text-muted-foreground">Create dashboards, settings, and more</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                     <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-medium text-foreground">Workflow Page Generation</p>
-                      <p className="text-sm text-muted-foreground">Create dashboards, settings, profiles, and more</p>
+                      <p className="font-medium text-foreground text-sm">Export & Deploy</p>
+                      <p className="text-xs text-muted-foreground">PNG export and HTML code ready to use</p>
                     </div>
                   </div>
                 </div>
-                <div className="text-center space-y-4">
-                  {isAuthenticated ? (
-                    <button
-                      onClick={handleUpgradeClick}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-4 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
-                    >
-                      Upgrade Now
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  ) : (
-                    <Link
-                      href="/auth/sign-up"
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-4 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
-                    >
-                      Get Started
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  )}
-                  <p className="text-xs text-muted-foreground">
+                <div className="space-y-3">
+                  <button
+                    onClick={handleGetStarted}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition shadow-lg"
+                  >
+                    Get Started
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                  <p className="text-xs text-center text-muted-foreground">
                     Cancel anytime • No setup fees • Instant access
                   </p>
                 </div>
@@ -426,105 +431,74 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section id="cta-section" className="py-24 px-6 bg-linear-to-br from-primary via-primary/20 to-primary/10">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-semibold text-primary-foreground">
-            Ready to Transform Your Design Workflow?
-          </h2>
-          <p className="text-lg text-primary-foreground/90">
-            Join thousands of designers and developers creating beautiful UIs faster than ever.
-          </p>
-          <div className="flex items-center justify-center gap-4 pt-4">
-            {isAuthenticated ? (
-              <button
-                onClick={handleDashboardClick}
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary-foreground px-8 py-4 text-sm font-medium text-primary hover:opacity-90 transition"
-              >
-                Go to Dashboard
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <Link
-                href="/auth/sign-up"
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary-foreground px-8 py-4 text-sm font-medium text-primary hover:opacity-90 transition"
-              >
-                Get Started Free
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            )}
-            <Link
-              href="#features"
-              className="inline-flex items-center justify-center gap-2 rounded-md border border-primary-foreground/20 px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10 transition"
-            >
-              Learn More
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="border-t bg-background py-16 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-foreground">Mochi</h3>
               <p className="text-sm text-muted-foreground">
-                Transform your wireframes into beautiful, production-ready UI designs with AI-powered tools.
+                Transform wireframes into beautiful UIs with AI-powered design generation.
               </p>
+              <div className="flex items-center gap-4">
+                <Link href="https://github.com" className="text-muted-foreground hover:text-foreground transition">
+                  <Github className="w-5 h-5" />
+                </Link>
+                <Link href="https://twitter.com" className="text-muted-foreground hover:text-foreground transition">
+                  <Twitter className="w-5 h-5" />
+                </Link>
+                <Link href="https://linkedin.com" className="text-muted-foreground hover:text-foreground transition">
+                  <Linkedin className="w-5 h-5" />
+                </Link>
+              </div>
             </div>
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-foreground">Product</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="#features" className="hover:text-foreground transition">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#how-it-works" className="hover:text-foreground transition">
-                    How It Works
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#pricing" className="hover:text-foreground transition">
-                    Pricing
-                  </Link>
-                </li>
-              </ul>
+              <div className="flex flex-col gap-2">
+                <Link href="#features" className="text-sm text-muted-foreground hover:text-foreground transition">
+                  Features
+                </Link>
+                <Link href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition">
+                  How It Works
+                </Link>
+                <Link href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition">
+                  Pricing
+                </Link>
+              </div>
             </div>
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-foreground">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="/auth/sign-in" className="hover:text-foreground transition">
-                    Sign In
+              <div className="flex flex-col gap-2">
+                <Link href="/auth/sign-in" className="text-sm text-muted-foreground hover:text-foreground transition">
+                  Sign In
+                </Link>
+                <Link href="/auth/sign-up" className="text-sm text-muted-foreground hover:text-foreground transition">
+                  Sign Up
+                </Link>
+                {isAuthenticated && (
+                  <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition">
+                    Dashboard
                   </Link>
-                </li>
-                <li>
-                  <Link href="/auth/sign-up" className="hover:text-foreground transition">
-                    Sign Up
-                  </Link>
-                </li>
-              </ul>
+                )}
+              </div>
             </div>
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-foreground">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <span className="hover:text-foreground transition cursor-pointer">Privacy Policy</span>
-                </li>
-                <li>
-                  <span className="hover:text-foreground transition cursor-pointer">Terms of Service</span>
-                </li>
-              </ul>
+              <div className="flex flex-col gap-2">
+                <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition">
+                  Privacy Policy
+                </Link>
+                <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition">
+                  Terms of Service
+                </Link>
+              </div>
             </div>
           </div>
           <div className="pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">© 2025 Mochi. All rights reserved.</p>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <span>Made with ❤️ for designers</span>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Built with ❤️ using Next.js, Convex, and AI
+            </p>
           </div>
         </div>
       </footer>

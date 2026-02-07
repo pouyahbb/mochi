@@ -1,65 +1,69 @@
 <div align="center">
-
-# 🎨 Mochi
-
-**Transform Wireframes into Beautiful UIs in Seconds**
-
-[![Next.js](https://img.shields.io/badge/Next.js-15.4-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Convex](https://img.shields.io/badge/Convex-Backend-orange?style=for-the-badge)](https://convex.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-
-*AI-powered design generation platform that converts wireframes into production-ready UI designs*
-
+  <h1>🎨 Mochi</h1>
+  <p><strong>Transform Wireframes into Beautiful UIs with AI-Powered Design Generation</strong></p>
+  
+  <p>
+    <a href="#features">Features</a> •
+    <a href="#getting-started">Getting Started</a> •
+    <a href="#tech-stack">Tech Stack</a> •
+    <a href="#environment-variables">Environment Variables</a>
+  </p>
 </div>
 
 ---
 
-## ✨ Features
+## ✨ Overview
 
-### 🎯 Core Features
+**Mochi** is an AI-powered design tool that transforms simple wireframes into production-ready UI designs in seconds. Built with Next.js, Convex, and Anthropic's Claude AI, Mochi leverages shadcn/ui components and pre-built templates to generate high-quality, consistent designs while reducing AI costs.
 
-- **🤖 AI-Powered Design Generation** - Transform wireframes into production-ready UI designs using advanced AI models
-- **🎨 Smart Style Guide** - Automatically generate comprehensive style guides from mood board images
-- **📐 Infinite Canvas** - Draw wireframes with powerful tools (frames, shapes, arrows, text, freehand)
-- **💬 Interactive Redesign Chat** - Chat with AI to modify designs in real-time
-- **📄 Workflow Page Generation** - Generate complete workflow pages (dashboards, settings, profiles, data listings)
-- **📦 Component Library Integration** - Leverage shadcn/ui components and pre-built templates
-- **💾 Auto-save** - Projects are automatically saved to the cloud
-- **🔄 Undo/Redo** - Full history support with keyboard shortcuts (Ctrl+Z, Ctrl+Shift+Z)
-- **📱 Fully Responsive** - Optimized for desktop, tablet, and mobile devices
-- **🎨 Adaptive Toolbar** - Toolbar colors adapt to background (light/dark)
+### 🚀 Key Features
 
-### 🛠️ Technical Features
+- **🎯 AI-Powered Design Generation**: Transform wireframes into production-ready HTML with shadcn/ui components
+- **🎨 Style Guide Generator**: Automatically extract colors, typography, and design tokens from inspiration images
+- **💬 Interactive Design Chat**: Chat with AI to redesign your UI in real-time with simple text commands
+- **📄 Workflow Page Generation**: Generate complete workflow pages (dashboards, settings, profiles, data tables)
+- **🖼️ Infinite Canvas**: Draw wireframes with powerful tools - frames, shapes, arrows, text, and more
+- **📤 Export & Deploy**: Export designs as PNG or copy HTML code ready to use
+- **🔄 Undo/Redo**: Full history support with keyboard shortcuts (Ctrl+Z, Ctrl+Shift+Z)
+- **💳 Credit System**: Simple, predictable pricing with monthly credit allocation
 
-- **Real-time Collaboration** - Built with Convex for real-time data synchronization
-- **Event-Driven Architecture** - Inngest for webhook processing and background jobs
-- **Credit System** - Flexible credit-based billing with Polar integration
-- **Secure Authentication** - Password-based authentication with Convex Auth
-- **Modern Stack** - Next.js 15, React 19, TypeScript, Tailwind CSS v4
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Backend**: Convex (Database & Serverless Functions)
+- **AI**: Anthropic Claude (Sonnet 4)
+- **Styling**: Tailwind CSS 4, shadcn/ui
+- **State Management**: Redux Toolkit
+- **Event Processing**: Inngest
+- **Billing**: Polar.sh
+- **Authentication**: Convex Auth
+
+---
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** 18+ and npm/yarn/pnpm
+- **Convex Account** - [Sign up here](https://convex.dev)
+- **Anthropic API Key** - [Get one here](https://console.anthropic.com)
+- **Polar.sh Account** - For billing integration
+- **Inngest Account** - For event processing
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-- **Node.js** 18+ and npm/yarn/pnpm
-- **Convex Account** - Sign up at [convex.dev](https://convex.dev)
-- **Anthropic API Key** - Get your API key from [console.anthropic.com](https://console.anthropic.com)
-- **Polar Account** (for billing) - Sign up at [polar.sh](https://polar.sh)
-- **Inngest Account** (for webhooks) - Sign up at [inngest.com](https://inngest.com)
-
-### Installation
-
-1. **Clone the repository**
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/yourusername/mochi.git
 cd mochi
 ```
 
-2. **Install dependencies**
+### 2. Install Dependencies
 
 ```bash
 npm install
@@ -69,18 +73,18 @@ yarn install
 pnpm install
 ```
 
-3. **Set up Convex**
+### 3. Set Up Convex
 
 ```bash
 npx convex dev
 ```
 
 This will:
-- Create a new Convex project (or connect to existing)
-- Generate the necessary configuration files
+- Create a new Convex project (if needed)
+- Generate the Convex configuration
 - Set up the database schema
 
-4. **Configure environment variables**
+### 4. Configure Environment Variables
 
 Create a `.env.local` file in the root directory and add the following variables:
 
@@ -90,376 +94,230 @@ CONVEX_DEPLOYMENT=dev:your-deployment-name
 NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
 CONVEX_SITE_URL=http://localhost:3000
 
-# Anthropic AI API
-ANTHROPIC_API_KEY=sk-ant-api03-your-api-key-here
+# Anthropic AI
+ANTHROPIC_API_KEY=sk-ant-api03-your-api-key
 
-# Polar Billing Configuration
+# Polar.sh Billing
 POLAR_ACCESS_TOKEN=polar_oat_your-access-token
 POLAR_WEBHOOK_SECRET=polar_whs_your-webhook-secret
-POLAR_ENV=sandbox  # or "production" for production
-POLAR_STANDARD_PLAN=your-product-id-here
-NEXT_PUBLIC_APP_URL=http://localhost:3000  # Update for production
+POLAR_ENV=sandbox
+POLAR_STANDARD_PLAN=your-product-id
 
-# Inngest Configuration
+# Inngest Event Processing
 INNGEST_SIGNING_KEY=signkey-prod-your-signing-key
 INNGEST_EVENT_KEY=your-event-key
-INNGEST_DEV=1  # Set to 0 for production
+INNGEST_DEV=1
+
+# Application URL (for webhooks)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# OpenAI (optional, if used)
+OPENAI_API_KEY=your-openai-key
 ```
 
-### Environment Variables Explained
-
-#### Convex Variables
-- `CONVEX_DEPLOYMENT` - Your Convex deployment identifier (format: `dev:deployment-name`)
-- `NEXT_PUBLIC_CONVEX_URL` - Your Convex deployment URL
-- `CONVEX_SITE_URL` - Your application URL (for OAuth callbacks)
-
-#### Anthropic AI
-- `ANTHROPIC_API_KEY` - Your Anthropic API key for AI model access
-
-#### Polar Billing
-- `POLAR_ACCESS_TOKEN` - Your Polar API access token
-- `POLAR_WEBHOOK_SECRET` - Secret for validating Polar webhooks
-- `POLAR_ENV` - Environment: `sandbox` for testing, `production` for live
-- `POLAR_STANDARD_PLAN` - Product ID for your standard subscription plan
-- `NEXT_PUBLIC_APP_URL` - Your application's public URL (for webhook callbacks)
-
-#### Inngest
-- `INNGEST_SIGNING_KEY` - Signing key for Inngest functions
-- `INNGEST_EVENT_KEY` - Event key for Inngest events
-- `INNGEST_DEV` - Set to `1` for development, `0` for production
-
-### Running the Development Server
-
-1. **Start Convex development server** (in one terminal)
+### 5. Run the Development Server
 
 ```bash
-npx convex dev
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
 ```
 
-2. **Start Inngest development server** (in another terminal)
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 6. Run Inngest Dev Server (in a separate terminal)
 
 ```bash
 npm run inngest:dev
 ```
 
-3. **Start Next.js development server** (in a third terminal)
-
-```bash
-npm run dev
-```
-
-4. **Open your browser**
-
-Navigate to [http://localhost:3000](http://localhost:3000)
+This starts the Inngest dev server for processing webhooks and events.
 
 ---
 
 ## 📖 How to Use
 
-### 1. Create an Account
+### Creating Your First Design
 
-1. Navigate to the sign-up page
-2. Enter your first name, last name, email, and password
-3. Click "Sign Up" to create your account
+1. **Sign Up / Sign In**: Create an account or sign in to your existing account
+2. **Create a Project**: Click "New Project" to create a new design project
+3. **Upload Inspiration Images**: 
+   - Go to the Style Guide page
+   - Upload images to your mood board
+   - Click "Generate Style Guide" to extract colors and typography
+4. **Draw Your Wireframe**:
+   - Navigate to the Canvas
+   - Use the toolbar to draw frames, shapes, arrows, and text
+   - Create a wireframe of your desired UI
+5. **Generate Design**:
+   - Click "Generate Design" on your frame
+   - Watch as AI transforms your wireframe into a production-ready UI
+6. **Refine & Export**:
+   - Use the Design Chat to make changes
+   - Generate workflow pages if needed
+   - Export as PNG or copy the HTML code
 
-### 2. Set Up Your First Project
+### Keyboard Shortcuts
 
-1. After signing in, you'll be redirected to the dashboard
-2. Click "New Project" to create a new design project
-3. Give your project a name (optional)
-
-### 3. Build Your Style Guide
-
-1. Navigate to the **Style Guide** tab
-2. Upload inspiration images to the **Mood Board**
-3. Click "Generate Style Guide" to create a comprehensive style guide
-4. The AI will extract:
-   - Color palettes (primary, secondary, accent, etc.)
-   - Typography scales (headings, body, buttons, etc.)
-   - Design tokens
-
-### 4. Draw Your Wireframe
-
-1. Navigate to the **Canvas** tab
-2. Use the toolbar to draw your wireframe:
-   - **Frame Tool** - Create container frames
-   - **Rectangle Tool** - Draw rectangles
-   - **Ellipse Tool** - Draw circles and ellipses
-   - **Arrow Tool** - Draw directional arrows
-   - **Line Tool** - Draw straight lines
-   - **Text Tool** - Add text labels
-   - **Free Draw Tool** - Draw freehand sketches
-   - **Eraser Tool** - Remove shapes
-3. Use **Undo/Redo** (Ctrl+Z / Ctrl+Shift+Z) to manage your design history
-4. **Zoom** and **Pan** to navigate the canvas
-
-### 5. Generate UI Design
-
-1. Draw a frame around your wireframe
-2. Click "Generate Design" on the frame
-3. Watch as AI transforms your wireframe into a production-ready UI
-4. The generated design will appear next to your frame
-
-### 6. Refine Your Design
-
-1. Click "Design Chat" on the generated UI
-2. Chat with AI to modify your design:
-   - "Change the primary color to blue"
-   - "Make the layout more compact"
-   - "Add more spacing between cards"
-   - "Update the button styles"
-3. The AI will regenerate the design based on your requests
-
-### 7. Generate Workflow Pages
-
-1. Click "Generate Workflow" on a generated UI
-2. Select the type of workflow page:
-   - Dashboard/Analytics page
-   - Settings/Configuration page
-   - User Profile page
-   - Data Listing/Table page
-3. The AI will generate a complementary page that matches your design style
-
-### 8. Export Your Design
-
-1. Click "Export" on the generated UI
-2. Choose to export as PNG or copy the HTML code
-3. Use the exported design in your projects
+- **Ctrl+Z / Cmd+Z**: Undo
+- **Ctrl+Shift+Z / Cmd+Shift+Z**: Redo
+- **Ctrl+Y / Cmd+Y**: Redo (alternative)
+- **Space + Drag**: Pan canvas
+- **Mouse Wheel**: Zoom in/out
 
 ---
 
-## 🏗️ Project Structure
+## 🔧 Environment Variables Explained
+
+### Required Variables
+
+| Variable | Description | Where to Get |
+|----------|-------------|--------------|
+| `CONVEX_DEPLOYMENT` | Your Convex deployment name | Generated by `npx convex dev` |
+| `NEXT_PUBLIC_CONVEX_URL` | Your Convex deployment URL | Generated by `npx convex dev` |
+| `ANTHROPIC_API_KEY` | Anthropic API key for AI generation | [Anthropic Console](https://console.anthropic.com) |
+| `POLAR_ACCESS_TOKEN` | Polar.sh API access token | [Polar.sh Dashboard](https://polar.sh) |
+| `POLAR_WEBHOOK_SECRET` | Polar.sh webhook secret | [Polar.sh Dashboard](https://polar.sh) |
+| `POLAR_STANDARD_PLAN` | Product ID for standard plan | [Polar.sh Dashboard](https://polar.sh) |
+| `INNGEST_SIGNING_KEY` | Inngest signing key | [Inngest Dashboard](https://inngest.com) |
+| `INNGEST_EVENT_KEY` | Inngest event key | [Inngest Dashboard](https://inngest.com) |
+
+### Optional Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `POLAR_ENV` | Polar environment (sandbox/production) | `sandbox` |
+| `INNGEST_DEV` | Enable Inngest dev mode | `1` |
+| `NEXT_PUBLIC_APP_URL` | Your application URL | `http://localhost:3000` |
+| `OPENAI_API_KEY` | OpenAI API key (if used) | - |
+
+---
+
+## 📁 Project Structure
 
 ```
 mochi/
-├── convex/                 # Convex backend functions
-│   ├── auth.ts            # Authentication configuration
-│   ├── schema.ts          # Database schema
-│   ├── projects.ts        # Project management
-│   ├── subscription.ts    # Subscription & credits
-│   ├── user.ts            # User management
-│   └── ...
 ├── src/
-│   ├── app/               # Next.js app directory
-│   │   ├── (protected)/   # Protected routes
-│   │   │   ├── dashboard/ # Dashboard pages
-│   │   │   └── billing/   # Billing pages
-│   │   ├── api/           # API routes
-│   │   │   ├── generate/  # AI generation endpoints
-│   │   │   ├── billing/   # Billing webhooks
-│   │   │   └── inngest/   # Inngest endpoints
-│   │   ├── auth/          # Authentication pages
-│   │   └── inngest/       # Inngest functions
-│   ├── components/        # React components
-│   │   ├── canvas/        # Canvas components
-│   │   ├── ui/            # shadcn/ui components
-│   │   └── ...
-│   ├── hooks/             # Custom React hooks
-│   ├── redux/             # Redux store & slices
-│   ├── prompts/           # AI prompts & templates
-│   └── lib/               # Utility functions
-└── ...
+│   ├── app/                    # Next.js app router pages
+│   │   ├── (protected)/       # Protected routes (dashboard, billing)
+│   │   ├── (public)/          # Public routes (pricing)
+│   │   ├── api/               # API routes
+│   │   │   ├── generate/      # AI generation endpoints
+│   │   │   └── billing/       # Billing webhooks
+│   │   └── auth/              # Authentication pages
+│   ├── components/            # React components
+│   │   ├── canvas/            # Canvas components
+│   │   ├── buttons/           # Button components
+│   │   └── ui/                # shadcn/ui components
+│   ├── convex/                # Convex backend
+│   │   ├── subscription.ts    # Subscription management
+│   │   ├── projects.ts        # Project management
+│   │   └── user.ts            # User management
+│   ├── hooks/                 # Custom React hooks
+│   ├── lib/                   # Utility functions
+│   ├── prompts/               # AI prompts and templates
+│   │   ├── components.ts      # shadcn/ui component library
+│   │   ├── templates.ts       # Page templates
+│   │   └── index.ts           # System prompts
+│   ├── redux/                 # Redux store and slices
+│   └── types/                 # TypeScript types
+├── convex/                    # Convex schema and functions
+└── public/                    # Static assets
 ```
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **Next.js 15** - React framework with App Router
-- **React 19** - UI library
-- **TypeScript** - Type safety
-- **Tailwind CSS v4** - Styling
-- **shadcn/ui** - UI component library
-- **Redux Toolkit** - State management
-- **React Hook Form** - Form handling
-- **Zod** - Schema validation
-
-### Backend
-- **Convex** - Backend-as-a-Service (database, auth, real-time)
-- **Inngest** - Event-driven serverless functions
-- **Polar** - Billing and subscription management
-
-### AI & Services
-- **Anthropic Claude** - AI model for design generation
-- **AI SDK** - Vercel AI SDK for streaming responses
-
-### Development Tools
-- **ESLint** - Code linting
-- **TypeScript** - Type checking
-- **Turbopack** - Fast bundler
-
----
-
-## 🔐 Authentication
-
-Mochi uses **password-based authentication** via Convex Auth. Users can:
-
-- Sign up with email and password
-- Sign in with their credentials
-- Manage their profile and account settings
-
----
-
-## 💳 Billing & Credits
-
-### Credit System
-
-- Each user gets **10 credits per month** with the Standard Plan ($9.99/month)
-- Credits are consumed for:
-  - Style guide generation (1 credit)
-  - UI design generation (1 credit)
-  - Design redesign/chat (1 credit)
-  - Workflow page generation (1 credit)
-- Credits refresh monthly
-- Credits rollover up to a limit (100 credits)
-
-### Subscription Management
-
-- Powered by **Polar** for secure payment processing
-- Webhooks handled by **Inngest** for reliable event processing
-- Automatic credit granting on subscription activation/renewal
-
----
-
-## 🎨 AI Generation System
-
-### Models Used
-
-- **Claude Sonnet 4** - Primary model for UI generation (cost-effective)
-- **Claude Opus 4** - Available for more complex tasks
-
-### Prompt Engineering
-
-The system uses sophisticated prompts that:
-
-- Reference shadcn/ui component library
-- Include pre-built page templates
-- Enforce style guide consistency
-- Maintain WCAG AA accessibility standards
-- Generate semantic, production-ready HTML
-
-### Component Library
-
-Pre-built components and templates reduce AI generation costs by:
-
-- Providing reusable component structures
-- Offering full-page templates as starting points
-- Ensuring design consistency
-- Reducing token usage
-
----
-
-## 📝 API Endpoints
-
-### Generation Endpoints
-
-- `POST /api/generate` - Generate UI from wireframe
-- `POST /api/generate/style` - Generate style guide from mood board
-- `POST /api/generate/redesign` - Redesign existing UI
-- `POST /api/generate/workflow` - Generate workflow page
-- `POST /api/generate/workflow-redesign` - Redesign workflow page
-
-### Billing Endpoints
-
-- `GET /api/billing/checkout` - Create checkout session
-- `POST /api/billing/webhook` - Handle Polar webhooks
-
-### Inngest Endpoints
-
-- `POST /api/inngest` - Inngest function execution endpoint
-
----
-
-## 🔄 State Management
-
-### Redux Slices
-
-- **shapes** - Canvas shapes and drawing state
-- **viewport** - Canvas viewport (zoom, pan)
-- **projects** - Project list and management
-- **profile** - User profile data
-- **chat** - AI chat messages for redesign
-
-### History System
-
-- Full undo/redo support
-- History stored in Redux state
-- Keyboard shortcuts: `Ctrl+Z` (undo), `Ctrl+Shift+Z` or `Ctrl+Y` (redo)
-- History limit: 50 states
 
 ---
 
 ## 🎯 Key Features Explained
 
-### Infinite Canvas
+### AI Design Generation
 
-- Draw wireframes on an unlimited canvas
-- Pan with spacebar + drag or shift + drag
-- Zoom with mouse wheel or zoom controls
-- Multiple drawing tools (shapes, arrows, text, freehand)
-- Selection and manipulation of shapes
+Mochi uses Anthropic's Claude Sonnet 4 to generate UI designs. The AI is trained to:
+- Use shadcn/ui components from a pre-built library
+- Follow style guides generated from mood boards
+- Maintain design consistency across pages
+- Generate accessible, semantic HTML
 
 ### Style Guide Generation
 
-- Upload images to mood board
-- AI analyzes visual style
-- Generates comprehensive design system:
-  - Color palettes (primary, secondary, accent, etc.)
-  - Typography scales (headings, body, buttons)
-  - Design tokens
+Upload inspiration images to generate comprehensive style guides:
+- **Color Extraction**: Automatically identifies color palettes
+- **Typography Analysis**: Suggests font families, sizes, and weights
+- **Design Tokens**: Creates reusable design tokens for consistency
 
-### AI Design Generation
+### Credit System
 
-- Converts wireframes to production-ready HTML
-- Uses style guide for consistency
-- Leverages shadcn/ui components
-- Generates semantic, accessible code
-- Maintains design system tokens
-
-### Interactive Redesign
-
-- Chat interface for design modifications
-- Real-time streaming responses
-- Context-aware redesigns
-- Maintains design consistency
+- Each user gets 10 credits per month (with Standard Plan)
+- One credit = one AI task (generation, export, etc.)
+- Credits refresh monthly
+- Simple, predictable pricing
 
 ---
 
-## 🚀 Deployment
+## 🔐 Authentication
 
-### Prerequisites
+Mochi uses Convex Auth with password-based authentication. Users can:
+- Sign up with email and password
+- Sign in to access their projects
+- Manage their account and subscription
 
-1. Set up production Convex deployment
-2. Configure production environment variables
-3. Set up Polar production account
-4. Configure Inngest production environment
+---
 
-### Environment Variables for Production
+## 💳 Billing Integration
 
-Update your `.env.local` with production values:
+Mochi integrates with Polar.sh for subscription management:
+- Webhook handling via Inngest
+- Automatic credit granting
+- Subscription status tracking
+- Credit balance management
 
-```env
-CONVEX_DEPLOYMENT=prod:your-production-deployment
-NEXT_PUBLIC_CONVEX_URL=https://your-production.convex.cloud
-CONVEX_SITE_URL=https://your-domain.com
-POLAR_ENV=production
-NEXT_PUBLIC_APP_URL=https://your-domain.com
-INNGEST_DEV=0
+### Setting Up Polar.sh
+
+1. Create a product in Polar.sh dashboard
+2. Set up webhook endpoint: `https://your-domain.com/api/billing/webhook`
+3. Configure webhook secret
+4. Add product ID to environment variables
+
+---
+
+## 🧪 Development
+
+### Running Tests
+
+```bash
+npm run test
 ```
 
-### Build and Deploy
+### Building for Production
 
 ```bash
 npm run build
 npm start
 ```
 
-For deployment on Vercel:
+### Linting
 
-1. Connect your GitHub repository
-2. Configure environment variables in Vercel dashboard
-3. Deploy automatically on push
+```bash
+npm run lint
+```
+
+---
+
+## 📝 API Endpoints
+
+### AI Generation
+
+- `POST /api/generate` - Generate UI from wireframe
+- `POST /api/generate/redesign` - Redesign existing UI
+- `POST /api/generate/workflow` - Generate workflow pages
+- `POST /api/generate/workflow-redesign` - Redesign workflow pages
+- `POST /api/generate/style` - Generate style guide
+
+### Billing
+
+- `POST /api/billing/webhook` - Polar.sh webhook handler
+- `GET /api/billing/checkout` - Create checkout session
 
 ---
 
@@ -483,24 +341,22 @@ This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
-- [Convex](https://convex.dev) - Backend infrastructure
-- [Anthropic](https://anthropic.com) - AI models
-- [shadcn/ui](https://ui.shadcn.com) - UI components
-- [Polar](https://polar.sh) - Billing platform
-- [Inngest](https://inngest.com) - Event processing
+- [shadcn/ui](https://ui.shadcn.com) for the amazing component library
+- [Convex](https://convex.dev) for the backend infrastructure
+- [Anthropic](https://anthropic.com) for Claude AI
+- [Next.js](https://nextjs.org) for the framework
 
 ---
 
 ## 📞 Support
 
-For support, email support@mochi.app or open an issue in the GitHub repository.
+For support, email support@mochi.dev or open an issue in the GitHub repository.
 
 ---
 
 <div align="center">
-
-**Made with ❤️ for designers and developers**
-
-[Website](https://mochi.app) • [Documentation](https://docs.mochi.app) • [Twitter](https://twitter.com/mochi)
-
+  <p>Made with ❤️ by the Mochi team</p>
+  <p>
+    <a href="https://github.com/yourusername/mochi">⭐ Star us on GitHub</a>
+  </p>
 </div>
