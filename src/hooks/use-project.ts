@@ -40,7 +40,7 @@ const generateGradiantThumbnail = () => {
 
 export const useProjectCreation = () => {
     const dispatch = useAppDispatch()
-    const user = useAppSelector(state => state.profile)
+    const user = useAppSelector(state => state.profile.user)
     const projectsState = useAppSelector(state => state.projects)
     const shapesState = useAppSelector(state => state.shapes)
 
@@ -74,10 +74,12 @@ export const useProjectCreation = () => {
             }))
             dispatch(createProjectSuccess())
             toast.success("Project created successfully")
+            return result.projectId
         }catch(err){
             console.log(err)
             dispatch(createProjectFailure("Failed to create project"))
             toast.error("Failed to create project")
+            return null
         }
     } 
     return {

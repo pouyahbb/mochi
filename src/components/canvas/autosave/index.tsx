@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState } from 'react'
 const Autosave = () => {
     const searchParams = useSearchParams()
     const projectId = searchParams.get("project")
-    const user = useAppSelector(state => state.profile)
+    const user = useAppSelector(state => state.profile.user)
     const shapesState = useAppSelector(state => state.shapes)
     const viewportState = useAppSelector(state => state.viewport)
 

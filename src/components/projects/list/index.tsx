@@ -9,10 +9,10 @@ import Link from 'next/link'
 import React from 'react'
 
 const ProjectsList = () => {
-    const { projects , canCreate } = useProjectCreation()
-    const user = useAppSelector(state => state.profile)
+    const { projects } = useProjectCreation()
+    const user = useAppSelector(state => state.profile.user)
 
-    if(!canCreate){
+    if(!user?.id){
         return (
             <div className='text-center py-12'>
                 <p className="text-lg">Please sign in to view your projects.</p>

@@ -40,7 +40,7 @@ export default async function RootLayout({
       >
         <ConvexClientProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <ReduxProvider preloadedState={{ profile}}>
+          <ReduxProvider preloadedState={{ profile: {user: profile}}}>
             {children}
             <Toaster />
           </ReduxProvider>
