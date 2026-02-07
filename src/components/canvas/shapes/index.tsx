@@ -40,7 +40,14 @@ const ShapeRenderer = ({
         case 'text':
             return <Text shape={shape} />
         case "generatedui":
-            return <GeneratedUI shape={shape} toggleChat={toggleChat} generateWorkflow={generateWorkflow} exportDesign={exportDesign} />
+            return (
+                <GeneratedUI
+                    shape={shape}
+                    toggleChat={toggleChat}
+                    generateWorkflow={generateWorkflow}
+                    exportDesign={exportDesign}
+                />
+            )
         default:
             return null
     }

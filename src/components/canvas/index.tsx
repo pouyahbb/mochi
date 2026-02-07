@@ -1,6 +1,6 @@
 "use client"
 
-import { useInfiniteCanvas, useInspiration } from '@/hooks/use-canvas'
+import { useGlobalChat, useInfiniteCanvas, useInspiration } from '@/hooks/use-canvas'
 import React from 'react'
 import TextSidebar from './text-sidebar'
 import { cn } from '@/lib/utils'
@@ -35,24 +35,11 @@ const InfiniteCanvas = () => {
 
     const {isInspirationOpen , closeInspiration , toggleInspiration} = useInspiration()
 
+    const {activeGeneratedUIId , generateWorkflow , isChatOpen } = useGlobalChat()
+
     const draftShape = getDraftShape()
     const freeDrawPoints = getFreeDrawPoints()
 
-    // Placeholder functions for generatedUI features
-    const toggleChat = (generatedUIId: string) => {
-        console.log("Toggle chat for:", generatedUIId)
-        // TODO: Implement chat functionality
-    }
-
-    const generateWorkflow = (generatedUIId: string) => {
-        console.log("Generate workflow for:", generatedUIId)
-        // TODO: Implement workflow generation
-    }
-
-    const exportDesign = (generatedUIId: string, element: HTMLElement | null) => {
-        console.log("Export design for:", generatedUIId, element)
-        // TODO: Implement export functionality
-    }
 
     return (
         <>
@@ -89,9 +76,9 @@ const InfiniteCanvas = () => {
                             key={shape.id}
                             shape={shape}
                             toggleInspiration={toggleInspiration}
-                            toggleChat={toggleChat}
+                            toggleChat={() => {}}
                             generateWorkflow={generateWorkflow}
-                            exportDesign={exportDesign}
+                            exportDesign={() => {}}
                         />
                     ))}
                     {shapes.map(shape => (

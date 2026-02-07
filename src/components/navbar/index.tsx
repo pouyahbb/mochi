@@ -29,14 +29,12 @@ const Navbar = () => {
 
     const me = useAppSelector(state => state.profile)
 
-    const creditBalance = useQuery(api.subscription.getCreditBalance , {
-        userId : me.id as Id<"users">
-    })
+    const creditBalance = useQuery(api.subscription.getCreditBalance , me?.id ? { userId: me.id as Id<"users"> } : "skip")
 
     const project = useQuery(api.projects.getProject , projectId ? {projectId : projectId as Id<"projects">} : "skip")
 
 
-    const tabs:TabsProps[] = [
+    const tabs:TabsProps[] = me ? [
         {
             label : "Canvas",
             href : `/dashboard/${me.name}/canvas?project=${projectId}`,
@@ -47,7 +45,11 @@ const Navbar = () => {
             href : `/dashboard/${me.name}/style-guide?project=${projectId}`,
             icon : <LayoutTemplate className='h-4 w-4' />
         }
-    ]
+    ] : []
+
+    if (!me) {
+        return null
+    }
 
     return (
         <div className='grid grid-cols-2 lg:grid-cols-3 p-6 fixed top-0 left-0 right-0 z-50'>

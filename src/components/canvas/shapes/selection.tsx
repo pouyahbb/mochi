@@ -63,7 +63,7 @@ const SelectionOverlay = ({isSelected ,shape} : SelectionOverlayProps) => {
         }
     }
     const bounds = getBounds()
-    const isResizable = shape.type === "rect" || shape.type === "frame" || shape.type === "ellipse" || shape.type === "freedraw" || shape.type === "line" || shape.type === "arrow"
+    const isResizable = shape.type === "rect" || shape.type === "frame" || shape.type === "ellipse" || shape.type === "generatedui" || shape.type === "freedraw" || shape.type === "line" || shape.type === "arrow"
     
     const handlePointerDown = (e : React.PointerEvent , corner: string) => {
         e.stopPropagation()
