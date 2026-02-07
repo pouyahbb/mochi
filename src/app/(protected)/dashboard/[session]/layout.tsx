@@ -2,7 +2,6 @@ import Navbar from '@/components/navbar'
 import { SubscriptionEntitlementQuery } from '@/convex/query.config'
 import { combineSlug } from '@/lib/utils'
 import { redirect } from 'next/navigation'
-import React from 'react'
 
 type Props = {
     children : React.ReactNode
