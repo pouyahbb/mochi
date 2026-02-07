@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Sparkles, Zap, Shield, Users, Code, CheckCircle2, Palette, Download, Workflow, MessageCircle, Layers, Wand2, FileCode, Image as ImageIcon, Github, Twitter, Linkedin } from "lucide-react"
+import { ArrowRight, Sparkles, Zap, Code, CheckCircle2, Palette, Download, Workflow, MessageCircle, Layers, Wand2, FileCode, Image as ImageIcon, Github, Twitter, Linkedin } from "lucide-react"
 import { useConvexAuth } from "convex/react"
 import { useRouter } from "next/navigation"
 
@@ -276,7 +276,7 @@ export default function Home() {
               <div className="space-y-3">
                 <h3 className="text-2xl font-bold text-foreground">Sketch Your Wireframe</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Use our infinite canvas to draw your wireframe. Create frames, add shapes, arrows, and text. Then click "Generate Design" and watch as AI transforms your sketch into a beautiful, production-ready UI that follows your style guide.
+                  Use our infinite canvas to draw your wireframe. Create frames, add shapes, arrows, and text. Then click &quot;Generate Design&quot; and watch as AI transforms your sketch into a beautiful, production-ready UI that follows your style guide.
                 </p>
               </div>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -294,7 +294,7 @@ export default function Home() {
               <div className="space-y-3">
                 <h3 className="text-2xl font-bold text-foreground">Refine & Export</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Chat with AI to refine your design, generate workflow pages, or make changes. When you're happy, export as PNG or copy the HTML code. Your design is ready to use in your project immediately.
+                  Chat with AI to refine your design, generate workflow pages, or make changes. When you&apos;re happy, export as PNG or copy the HTML code. Your design is ready to use in your project immediately.
                 </p>
               </div>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">

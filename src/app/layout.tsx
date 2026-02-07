@@ -8,6 +8,7 @@ import { ConvexClientProvider } from "@/convex/provider";
 import ReduxProvider from "@/redux/provider";
 import { ProfileQuery } from "@/convex/query.config";
 import { ConvexUserRaw, normalizeProfile } from "@/types/user";
+import EnvCheck from "@/components/env-check";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default async function RootLayout({
           <ReduxProvider preloadedState={{ profile: {user: profile}}}>
             {children}
             <Toaster />
+            <EnvCheck />
           </ReduxProvider>
         </ThemeProvider>
 

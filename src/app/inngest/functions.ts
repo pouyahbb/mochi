@@ -57,8 +57,8 @@ export const handlePolarEvent = inngest.createFunction(
         
         // For customer events, we need customer data
         // For subscription events, we need sub or order
-        const isCustomerEvent = /^customer\./i.test(type)
-        const isSubscriptionEvent = /^subscription\.|^order\./i.test(type)
+        // const isCustomerEvent = /^customer\./i.test(type)
+        // const isSubscriptionEvent = /^subscription\.|^order\./i.test(type)
         
         if(!sub && !order && !customer){
             console.log("INNGEST: No subscription, order, or customer found. Skipping.")

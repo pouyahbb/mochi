@@ -59,7 +59,7 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/mochi.git
+git clone https://github.com/pouyahobbi/mochi.git
 cd mochi
 ```
 
@@ -86,7 +86,7 @@ This will:
 
 ### 4. Configure Environment Variables
 
-Create a `.env.local` file in the root directory and add the following variables:
+Create a `.env` file in the root directory and add the following variables:
 
 ```env
 # Convex Configuration
@@ -115,7 +115,137 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 OPENAI_API_KEY=your-openai-key
 ```
 
-### 5. Run the Development Server
+### 5. Set Up ngrok for Local Development (Required for Webhooks)
+
+**⚠️ Important:** When running the application locally, you **must** use ngrok to expose your local server to the internet. This is required for webhooks from Polar.sh and Inngest to work correctly.
+
+#### 5.1. Install ngrok
+
+1. **Download ngrok:**
+   - Visit [https://ngrok.com/download](https://ngrok.com/download)
+   - Download the appropriate version for your operating system
+   - Or install via package manager:
+     ```bash
+     # macOS
+     brew install ngrok/ngrok/ngrok
+     
+     # Windows (using Chocolatey)
+     choco install ngrok
+     
+     # Linux
+     wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
+     tar -xzf ngrok-v3-stable-linux-amd64.tgz
+     sudo mv ngrok /usr/local/bin
+     ```
+
+2. **Sign up for a free ngrok account:**
+   - Go to [https://dashboard.ngrok.com/signup](https://dashboard.ngrok.com/signup)
+   - Create a free account
+   - Get your authtoken from the dashboard
+
+3. **Authenticate ngrok:**
+   ```bash
+   ngrok config add-authtoken YOUR_AUTHTOKEN
+   ```
+
+#### 5.2. Start ngrok Tunnel
+
+1. **Start your Next.js development server first:**
+   ```bash
+   npm run dev
+   ```
+   Your app should be running on `http://localhost:3000`
+
+2. **In a new terminal, start ngrok:**
+   ```bash
+   ngrok http 3000
+   ```
+
+3. **Copy your ngrok URL:**
+   - You'll see output like this:
+     ```
+     Forwarding   https://abc123.ngrok-free.app -> http://localhost:3000
+     ```
+   - Copy the HTTPS URL (e.g., `https://abc123.ngrok-free.app`)
+   - **Important:** This URL will be different each time you restart ngrok (unless you have a paid plan with a static domain)
+
+#### 5.3. Configure Services with ngrok URL
+
+You need to update the ngrok URL in three places:
+
+##### A. Update `.env` File
+
+Update the `NEXT_PUBLIC_APP_URL` variable with your ngrok URL:
+
+```env
+# Replace with your actual ngrok URL
+NEXT_PUBLIC_APP_URL=https://abc123.ngrok-free.app
+```
+
+**Note:** Every time you restart ngrok, you'll get a new URL. Make sure to update this value in your `.env` file and restart your Next.js server.
+
+##### B. Configure Polar.sh Webhook
+
+1. Go to your [Polar.sh Dashboard](https://polar.sh)
+2. Navigate to **Settings** → **Webhooks**
+3. Click **Add Webhook** or edit existing webhook
+4. Set the **Webhook URL** to:
+   ```
+   https://abc123.ngrok-free.app/api/billing/webhook
+   ```
+   Replace `abc123.ngrok-free.app` with your actual ngrok URL
+5. Select the events you want to receive:
+   - `order.created`
+   - `order.updated`
+   - `subscription.created`
+   - `subscription.updated`
+   - `subscription.canceled`
+6. Save the webhook
+
+##### C. Configure Inngest
+
+1. Go to your [Inngest Dashboard](https://app.inngest.com)
+2. Navigate to **Apps** → Select your app
+3. Go to **Settings** → **Sync URL**
+4. Set the **Sync URL** to:
+   ```
+   https://abc123.ngrok-free.app/api/inngest
+   ```
+   Replace `abc123.ngrok-free.app` with your actual ngrok URL
+5. Save the settings
+
+#### 5.4. Restart Your Development Server
+
+After updating the `.env` file with the ngrok URL:
+
+1. Stop your Next.js server (Ctrl+C)
+2. Restart it:
+   ```bash
+   npm run dev
+   ```
+
+#### 5.5. Verify Webhook Configuration
+
+1. **Test Polar.sh webhook:**
+   - Make a test purchase or subscription in your app
+   - Check the Polar.sh dashboard → Webhooks → Recent deliveries
+   - You should see successful webhook deliveries
+
+2. **Test Inngest:**
+   - Check the Inngest dashboard → Events
+   - You should see events being received
+
+#### 5.6. Tips for Development
+
+- **Keep ngrok running:** Keep the ngrok terminal open while developing
+- **Update URLs when ngrok restarts:** If you restart ngrok, you'll get a new URL. Remember to:
+  1. Update `NEXT_PUBLIC_APP_URL` in `.env`
+  2. Update Polar.sh webhook URL
+  3. Update Inngest sync URL
+  4. Restart your Next.js server
+- **Use ngrok's static domain (optional):** For a more stable development experience, consider upgrading to ngrok's paid plan which provides a static domain that doesn't change
+
+### 6. Run the Development Server
 
 ```bash
 npm run dev
@@ -127,7 +257,7 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 6. Run Inngest Dev Server (in a separate terminal)
+### 7. Run Inngest Dev Server (in a separate terminal)
 
 ```bash
 npm run inngest:dev

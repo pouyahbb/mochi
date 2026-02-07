@@ -1,7 +1,6 @@
 import { SubscriptionEntitlementQuery } from '@/convex/query.config'
 import { combineSlug } from '@/lib/utils'
 import { redirect } from 'next/navigation'
-import React from 'react'
 
 const Page = async () => {
     const {entitlement , profileName} = await SubscriptionEntitlementQuery()
