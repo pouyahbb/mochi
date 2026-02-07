@@ -35,7 +35,7 @@ const InfiniteCanvas = () => {
 
     const {isInspirationOpen , closeInspiration , toggleInspiration} = useInspiration()
 
-    const {activeGeneratedUIId , generateWorkflow , isChatOpen } = useGlobalChat()
+    const {activeGeneratedUIId , generateWorkflow , isChatOpen , exportDesign , closeChat , openChat ,toggleChat } = useGlobalChat()
 
     const draftShape = getDraftShape()
     const freeDrawPoints = getFreeDrawPoints()
@@ -45,6 +45,9 @@ const InfiniteCanvas = () => {
         <>
             <TextSidebar isOpen={isSidebarOpen && hasSelectedText} />
             <InspirationSidebar isOpen={isInspirationOpen} onClose={closeInspiration} />
+            {activeGeneratedUIId && (
+                <ChatWindow generatedUIId={activeGeneratedUIId} isOpen={isChatOpen} onClose={closeChat} />
+            )}
             <div 
                 className={cn("relative w-full h-full overflow-hidden select-none z-0", {
                     "cursor-grabbing" : viewport.mode === "panning",
@@ -76,9 +79,9 @@ const InfiniteCanvas = () => {
                             key={shape.id}
                             shape={shape}
                             toggleInspiration={toggleInspiration}
-                            toggleChat={() => {}}
+                            toggleChat={toggleChat}
                             generateWorkflow={generateWorkflow}
-                            exportDesign={() => {}}
+                            exportDesign={exportDesign}
                         />
                     ))}
                     {shapes.map(shape => (
