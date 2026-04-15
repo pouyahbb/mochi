@@ -12,25 +12,25 @@ const Page = () => {
                     <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-primary to-primary/60 rounded-full mb-4 shadow-lg">
                         <Sparkles className='w-6 h-6 text-primary-foreground' />
                     </div>
-                    <h1 className='text-2xl font-bold text-foreground mb-3'> Unlock Mochi Premium </h1>
-                    <p className="text-muted-foreground text-sm max-w-sm mx-auto"> Transform your design workflow with AI-Powered tools and unlimited creativity </p>
+                    <h1 className='text-2xl font-bold text-foreground mb-3'> Mochi Demo / Organization Edition </h1>
+                    <p className="text-muted-foreground text-sm max-w-sm mx-auto"> This build is fully free. All features are enabled without any payment. </p>
                 </div>
                 <Card className='backdrop-blur-xl bg-white/8 border border-white/12 shadow-xl saturate-150'>
                     <CardHeader className="text-center pb-4">
                         <div className="flex items-center justify-center mb-3">
                             <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30 px-3 py-1 text-sm font-medium rounded-full">
-                                Most Popular
+                                Free For All Users
                             </Badge>
                         </div>
                         <CardTitle className="text-2xl font-bold text-foreground mb-2">
-                            Standard Plan
+                            Unlimited Access
                         </CardTitle>
                         <div className="flex items-baseline justify-center gap-2">
-                            <span className="text-4xl font-bold text-foreground">$9.99</span>
-                            <span className="text-muted-foreground text-base"> /month </span>
+                            <span className="text-4xl font-bold text-foreground">$0</span>
+                            <span className="text-muted-foreground text-base"> /forever </span>
                         </div>
                         <CardDescription className="text-muted-foreground text-sm mt-2">
-                            Get 10 credits every month to power AI-assisted design workflow
+                            No subscription required. No checkout required.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4 px-6">
@@ -101,7 +101,7 @@ const Page = () => {
                     <CardFooter className="flex flex-col gap-3 pt-4 px-6 pb-6">
                         <SubscripionButton />
                         <p className="text-muted-foreground text-xs text-center">
-                            Cancel anytime •  No setup fees • Instant access
+                            No payment • No setup fees • Instant access
                         </p>
                     </CardFooter>
                 </Card>
@@ -109,15 +109,15 @@ const Page = () => {
                     <div className="flex items-center justify-center gap-6 text-muted-foreground text-xs">
                         <div className="flex items-center gap-2">
                             <Check className='w-3 h-3 text-green-400' />
-                            <span >Secure Payment</span>
+                            <span >No Payment Needed</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Check className='w-3 h-3 text-green-400' />
-                            <span >30-Day Guarantee</span>
+                            <span >All Features Included</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Check className='w-3 h-3 text-green-400' />
-                            <span >24/7 Support</span>
+                            <span >Unlimited Usage</span>
                         </div>
                     </div>
                 </div>

@@ -6,10 +6,10 @@ import { api } from "../../convex/_generated/api"
 import {useEffect} from 'react'
 import { toast } from "sonner"
 import { Id } from "../../convex/_generated/dataModel"
-import { useGenerateStyleGuideMutation } from "@/redux/api/style-guide"
+import { useGenerateStyleGuideMutation } from "../redux/api/style-guide"
 import { resumeToPipeableStream } from "react-dom/server"
-import { GeneratedUIShape, updateShape } from "@/redux/slice/shapes"
-import { useAppDispatch } from "@/redux/store"
+import { GeneratedUIShape, updateShape } from "../redux/slice/shapes"
+import { useAppDispatch } from "../redux/store"
 
 export interface MoodBoardImage {
     id : string

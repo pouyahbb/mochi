@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button'
 import { useSubscriptionPlan } from '@/hooks/use-billings'
 import { cn } from '@/lib/utils'
-import { Loader2 } from 'lucide-react'
 import React from 'react'
 
 const SubscripionButton = () => {
@@ -23,14 +22,7 @@ const SubscripionButton = () => {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 "text-white font-medium text-sm px-6 py-3"
             )}>
-            {isFetching ? (
-                <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Redirecting...
-                </>
-            ) : (
-                "Subscribe"
-            )}
+            {isFetching ? "Processing..." : "Enable Demo Access"}
         </Button>
     )
 }

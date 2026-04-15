@@ -1,7 +1,7 @@
-import {fetchMutation, preloadQuery} from 'convex/nextjs'
+import { preloadQuery } from 'convex/nextjs'
 import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server"
 import { api } from '../../convex/_generated/api'
-import { ConvexUserRaw, normalizeProfile } from '@/types/user'
+import { ConvexUserRaw, normalizeProfile } from '../types/user'
 import { Id } from '../../convex/_generated/dataModel'
 
 export const ProfileQuery = async () => {
@@ -12,11 +12,8 @@ export const ProfileQuery = async () => {
 export const SubscriptionEntitlementQuery = async () => {
     const rawProfile = await ProfileQuery()
     const profile = normalizeProfile(rawProfile._valueJSON as unknown as ConvexUserRaw | null)
-    if(!profile?.id){
-        return {entitlement : null , profileName : null}
-    }
     const entitlement = await preloadQuery(api.subscription.hasEntitlement , {
-        userId: profile.id as Id<"users">
+        userId: profile?.id as Id<"users">
     } , {token : await convexAuthNextjsToken()})
     return {entitlement , profileName : profile?.name}
 }
@@ -71,12 +68,8 @@ export const CreditBalanceQuery = async () => {
     if(!profile?.id){
         return {ok : false , balance : 0 , project : null}
     }
-    const balance = await preloadQuery(api.subscription.getCreditBalance , {
-        userId : profile.id as Id<"users">
-    } , {
-        token : await convexAuthNextjsToken()
-    })
-    return {ok : true , balance : balance._valueJSON , profile}
+    // Demo/organization mode: keep all generation routes usable without paid billing.
+    return {ok : true , balance : 999999 , profile}
 }
 
 export const ConsumeCreditsQuery = async({amount}: {amount?:number}) => {
@@ -85,14 +78,8 @@ export const ConsumeCreditsQuery = async({amount}: {amount?:number}) => {
       if(!profile?.id){
         return {ok : false , balance : 0 , project : null}
     }
-    const credits = await fetchMutation(api.subscription.consumeCredits , {
-        reason : "ai:generation",
-        userId : profile.id as Id<"users">,
-        amount : amount || 1
-    } , {
-        token : await convexAuthNextjsToken()
-    })
-    return {ok : true , balance : credits.balance , profile}
+    // Demo/organization mode: do not require entitlement or deduct credits.
+    return {ok : true , balance : 999999 , profile}
     
 }
 

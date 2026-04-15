@@ -1,5 +1,5 @@
-import { ConsumeCreditsQuery, CreditBalanceQuery, InspirationImagesQuery, StyleGuideQuery } from "@/convex/query.config"
-import { prompts } from "@/prompts"
+import { ConsumeCreditsQuery, CreditBalanceQuery, InspirationImagesQuery, StyleGuideQuery } from "../../../convex/query.config"
+import { prompts } from "../../../prompts"
 import { anthropic } from "@ai-sdk/anthropic"
 import { streamText } from "ai"
 import { NextRequest, NextResponse } from "next/server"
@@ -70,7 +70,7 @@ INSTRUCTIONS:
         }
 
         const result = streamText({
-            model : anthropic("claude-sonnet-4-20250514"),
+            model : anthropic("claude-haiku-4-5-20251001"),
             messages : [
                 {
                     role : "user",

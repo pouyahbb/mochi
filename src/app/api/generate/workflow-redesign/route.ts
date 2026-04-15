@@ -1,5 +1,5 @@
-import { ConsumeCreditsQuery, CreditBalanceQuery, StyleGuideQuery } from "@/convex/query.config";
-import { prompts } from "@/prompts";
+import { ConsumeCreditsQuery, CreditBalanceQuery, StyleGuideQuery } from "../../../../convex/query.config";
+import { prompts } from "../../../../prompts"; 
 import { streamText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { NextRequest, NextResponse } from "next/server";
@@ -57,7 +57,7 @@ ${currentHTML.substring(0, 2000)}${currentHTML.length > 2000 ? '...' : ''}`
         userPrompt += `\n\nGenerate the modified workflow page HTML with the requested changes applied.`
 
         const result = streamText({
-            model: anthropic("claude-sonnet-4-20250514"),
+            model: anthropic("claude-haiku-4-5-20251001"),
             messages  : [
                 {
                     role : "user",

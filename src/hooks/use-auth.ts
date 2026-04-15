@@ -1,11 +1,9 @@
 import {useAuthActions} from '@convex-dev/auth/react'
-import { useConvex } from "convex/react"
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {z} from 'zod'
 import {zodResolver} from '@hookform/resolvers/zod'
-import { api } from "../../convex/_generated/api"
 
 
 const signInSchema = z.object({
@@ -28,7 +26,6 @@ type signUpData = z.infer<typeof signUpSchema>
 
 export const useAuth = () => {
     const {signIn , signOut} = useAuthActions()
-    const convex = useConvex()
     const router = useRouter()
     const [isLoading , setIsLoading] = useState(false)
     const signInForm = useForm<signInData>({
@@ -55,7 +52,8 @@ export const useAuth = () => {
                 password : data.password,
                 flow : "signIn"
             } )
-            router.push("/dashboard")
+            router.replace("/dashboard")
+            router.refresh()
         }catch(err){
             console.log(err)
             signInForm.setError("root" , {
@@ -66,58 +64,21 @@ export const useAuth = () => {
         }
     }
     const handleSignUp = async(data:signUpData) => {
+        console.log(data)
         setIsLoading(true)
         try{
-            const normalizedEmail = data.email.trim().toLowerCase()
-            const normalizedFirstName = data.firstName.trim()
-            const normalizedLastName = data.lastName.trim()
-            const existingUserId = await convex.query(api.user.getUserIdByEmail , {
-                email : normalizedEmail
-            })
-            if(existingUserId){
-                signUpForm.setError("root" , {
-                    message : "This email is already registered. Please sign in instead."
-                })
-                return
-            }
             await signIn("password" , {
-                name : `${normalizedFirstName} ${normalizedLastName}`.trim(),
+                name : `${data.firstName } ${data.lastName}`,
                 password : data.password,
-                email : normalizedEmail,
+                email : data.email,
                 flow : "signUp"
             })
-            router.push("/dashboard")
+            router.replace("/dashboard")
+            router.refresh()
         }catch(err){
             console.log(err)
-            const errorMessage = (
-                err instanceof Error
-                    ? err.message
-                    : typeof err === "string"
-                      ? err
-                      : typeof err === "object" && err !== null && "message" in err
-                        ? String((err as { message?: unknown }).message ?? "")
-                        : ""
-            ).toLowerCase()
-
-            if(errorMessage.includes("exists") || errorMessage.includes("duplicate")){
-                try{
-                    await signIn("password" , {
-                        email : data.email.trim().toLowerCase(),
-                        password : data.password,
-                        flow : "signIn"
-                    })
-                    router.push("/dashboard")
-                    return
-                }catch{
-                    signUpForm.setError("root" , {
-                        message : "This email is already registered. Please sign in instead."
-                    })
-                    return
-                }
-            }
-
             signUpForm.setError("root" , {
-                message : "Failed to create account. Please try again."
+                message : "Failed to create account. Email may already exist"
             })
         }finally{
             setIsLoading(false)
@@ -128,7 +89,8 @@ export const useAuth = () => {
     const handleSignOut = async() => {
         try{
             await signOut()
-            router.push("/auth/sign-in")
+            router.replace("/auth/sign-in")
+            router.refresh()
         }catch(err){
             console.log(err)
         }

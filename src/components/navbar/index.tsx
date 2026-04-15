@@ -217,7 +217,7 @@ const Navbar = () => {
                 </div>
             </div>
             <div className='flex items-center gap-4 justify-end'>
-                    <span className='text-sm text-white/50'> {creditBalance} credits </span>
+                    <span className='text-sm text-white/50'> Unlimited access (free) </span>
                     <Button className='rounded-full h-12 w-12 flex items-center justify-center backdrop-blur-xl bg-white/8 border border-white/12 saturate-150 hover:bg-white/12' variant="secondary">
                         <CircleQuestionMark className='size-5 text-white' />
                     </Button>

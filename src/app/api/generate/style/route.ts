@@ -1,9 +1,9 @@
-import { ConsumeCreditsQuery, CreditBalanceQuery, MoodBoardImagesQuery } from "@/convex/query.config";
-import { MoodBoardImage } from "@/hooks/use-styles";
-import { prompts } from "@/prompts";
+import { ConsumeCreditsQuery, CreditBalanceQuery, MoodBoardImagesQuery } from "../../../../convex/query.config";
+import { MoodBoardImage } from "../../../../hooks/use-styles";
+import { prompts } from "../../../../prompts";
 import { NextRequest, NextResponse } from "next/server";
 import {generateObject } from 'ai'
-import {anthropic} from '@ai-sdk/anthropic'
+import { anthropic } from "@ai-sdk/anthropic";
 import z from "zod";
 import { fetchMutation } from "convex/nextjs";
 import { api } from "../../../../../convex/_generated/api";
@@ -97,7 +97,7 @@ export async function POST (request : NextRequest){
         `
 
         const result = await generateObject({
-            model : anthropic("claude-sonnet-4-20250514"),
+            model : anthropic("claude-haiku-4-5-20251001"),
             schema : StyleGuideSchema,
             system : systemPrompt,
             messages : [
