@@ -11,10 +11,13 @@ type Props = {
 
 export default async function Layout({children , params} : Props) {
     const {profileName , entitlement} = await SubscriptionEntitlementQuery()
+    if(!profileName){
+        return redirect("/auth/sign-in")
+    }
     const { session } = await params
     const expectedSlug = combineSlug(profileName!)
     
-    if(!entitlement._valueJSON) {
+    if(!entitlement?._valueJSON) {
         // Only redirect if we're not already on the correct route
         if(session !== expectedSlug) {
             return redirect(`/dashboard/${expectedSlug}`)

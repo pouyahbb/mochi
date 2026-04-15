@@ -75,8 +75,16 @@ export const useAuth = () => {
             router.push("/dashboard")
         }catch(err){
             console.log(err)
+            const errorMessage =
+                err instanceof Error
+                    ? err.message.toLowerCase()
+                    : typeof err === "string"
+                      ? err.toLowerCase()
+                      : ""
             signUpForm.setError("root" , {
-                message : "Failed to create account. Email may already exist"
+                message : errorMessage.includes("exists") || errorMessage.includes("duplicate")
+                    ? "Failed to create account. This email is already registered."
+                    : "Failed to create account. Please try again."
             })
         }finally{
             setIsLoading(false)

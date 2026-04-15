@@ -12,6 +12,7 @@
 
 ---
 
+
 ## ✨ Overview
 
 **Mochi** is an AI-powered design tool that transforms simple wireframes into production-ready UI designs in seconds. Built with Next.js, Convex, and Anthropic's Claude AI, Mochi leverages shadcn/ui components and pre-built templates to generate high-quality, consistent designs while reducing AI costs.

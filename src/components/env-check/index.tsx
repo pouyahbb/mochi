@@ -96,7 +96,7 @@ export default function EnvCheck() {
               <li>
                 Create a{' '}
                 <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900 font-mono text-xs">
-                  .env.local
+                  .env
                 </code>{' '}
                 file in the project root
               </li>
